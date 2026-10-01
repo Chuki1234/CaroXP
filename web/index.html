@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Caro XP</title><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script>
+</head>
+<body>
+  <main class="xp-window" id="mainWindow">
+    <header class="titlebar"><div class="window-title"><span class="app-icon">XO</span><strong>Caro XP</strong></div><div class="window-controls"><button id="minimizeBtn" aria-label="Thu nhỏ">_</button><button id="helpBtn" aria-label="Hướng dẫn">?</button></div></header>
+    <div class="welcome-banner"><div><p class="eyebrow">MỘT TRÒ CHƠI QUEN. MỘT ĐỐI THỦ MỚI.</p><h1>Một ván caro nhé?</h1><p>Chọn đối thủ của bạn để bắt đầu.</p></div><div class="hero-board" aria-hidden="true"><b>X</b><b>O</b><b></b><b></b><b>X</b><b></b><b>O</b><b></b><b>X</b></div></div>
+    <section class="mode-section" aria-labelledby="modeHeading"><h2 id="modeHeading">Bạn muốn chơi cùng ai?</h2><div class="mode-options">
+      <button class="mode-option" id="pvpBtn"><span class="mode-art" aria-hidden="true"><b>X</b><i>O</i></span><span class="mode-copy"><small>HAI NGƯỜI · CÙNG MỘT MÁY</small><strong>Chơi cùng bạn bè</strong><span>Thay phiên nhau. Cùng một bàn cờ.</span></span><span class="mode-arrow">›</span></button>
+      <button class="mode-option" id="pveBtn"><span class="mode-art robot" aria-hidden="true">▣</span><span class="mode-copy"><small>MỘT NGƯỜI · THỬ THÁCH AI</small><strong>Đấu trí với máy</strong><span>Mỗi nước đi là một thử thách mới.</span></span><span class="mode-arrow">›</span></button>
+    </div><div class="rule-strip"><span class="info-icon">i</span><p><b>15 × 15 ô. Đúng 5 quân. Một người thắng.</b><br>Ngang, dọc hoặc chéo · Không xét chặn hai đầu · Bốc ngẫu nhiên lượt đầu.</p></div>
+    <details id="rulesDetails"><summary>Luật chơi chi tiết</summary><p>Hai bên lần lượt đặt X và O vào ô trống. Chuỗi phải có <b>đúng 5 quân liên tiếp</b> để thắng, kể cả khi bị chặn hai đầu. Nước nối thành chuỗi 6 quân trở lên không thắng theo hướng đó. Bàn đầy mà chưa ai thắng là hòa. Trong PVE, bạn cầm X và máy cầm O; O vẫn có thể đi trước.</p><p>Nhấp vào ô để đánh. Bạn cũng có thể dùng phím mũi tên để chọn ô và Enter để đánh.</p></details></section>
+    <footer class="window-status"><span class="status-dot"></span><span id="engineStatus">Sẵn sàng · AI offline</span><span>Không cần tài khoản</span></footer>
+  </main>
+
+  <dialog id="gameDialog" class="xp-window game-dialog" aria-labelledby="gameHeading">
+    <header class="titlebar"><div class="window-title"><span class="app-icon">XO</span><strong id="gameHeading">Caro XP — Ván đấu</strong></div><div class="window-controls"><button class="close-button" id="closeGame" aria-label="Về màn hình chọn chế độ">×</button></div></header>
+    <div class="game-toolbar"><span id="modeLabel" class="mode-tag">PVP</span><span id="starterLabel"></span><button class="xp-button" id="restartBtn">Ván mới</button></div>
+    <div id="resultToast" class="result-toast" role="status" aria-live="assertive" aria-atomic="true" hidden>
+      <span id="resultToastIcon" class="result-toast-icon" aria-hidden="true"></span>
+      <span class="result-toast-copy"><strong id="resultToastTitle"></strong><small id="resultToastDetail"></small></span>
+      <button id="dismissResultToast" type="button" aria-label="Đóng thông báo kết quả">×</button>
+    </div>
+    <div class="game-content"><section class="board-panel" aria-label="Bàn cờ"><div class="board-wrap"><div class="board-coordinates-top" id="topCoords"></div><div class="board-line"><div class="board-coordinates-left" id="leftCoords"></div><div id="board" class="board" role="grid" aria-label="Bàn cờ Caro 15 nhân 15"></div></div></div><div class="board-legend"><span><i class="last-swatch"></i>Nước vừa đánh</span><span id="moveCount">0 / 225 nước</span></div></section>
+    <aside class="game-sidebar"><h2>Người chơi</h2><div class="player" id="playerX"><b class="player-mark x">X</b><span><strong id="playerXName">Người chơi X</strong><small id="xDetail">Quân X</small></span><i></i></div><div class="player" id="playerO"><b class="player-mark o">O</b><span><strong id="playerOName">Người chơi O</strong><small id="oDetail">Quân O</small></span><i></i></div>
+    <section class="turn-card" aria-live="polite"><span id="turnSymbol" class="turn-symbol">X</span><h3 id="statusText">Lượt của X</h3><p id="statusSub">Chọn một ô trống để đánh.</p><button class="xp-button" id="retryAiBtn" hidden>Thử lại lượt AI</button></section>
+    <div class="little-rule"><strong>Đúng 5 là thắng</strong><div class="five-marks" aria-hidden="true">× × × × ×</div><p>Không xét chặn hai đầu.<br>6 quân trở lên không tính.</p></div><p class="ai-note" id="aiNote" hidden></p></aside></div>
+    <footer class="window-status"><span class="status-dot" id="gameDot"></span><span id="gameFooter">Chúc bạn có một ván cờ vui!</span><button class="link-button" id="gameBack">Đổi chế độ</button></footer>
+  </dialog>
+
+  <div id="toast" class="toast" role="alert" hidden></div>
+</body></html>
