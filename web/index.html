@@ -19,11 +19,6 @@
   <dialog id="gameDialog" class="xp-window game-dialog" aria-labelledby="gameHeading">
     <header class="titlebar"><div class="window-title"><span class="app-icon">XO</span><strong id="gameHeading">Caro XP — Ván đấu</strong></div><div class="window-controls"><button class="close-button" id="closeGame" aria-label="Về màn hình chọn chế độ">×</button></div></header>
     <div class="game-toolbar"><span id="modeLabel" class="mode-tag">PVP</span><span id="starterLabel"></span><button class="xp-button" id="restartBtn">Ván mới</button></div>
-    <div id="resultToast" class="result-toast" role="status" aria-live="assertive" aria-atomic="true" hidden>
-      <span id="resultToastIcon" class="result-toast-icon" aria-hidden="true"></span>
-      <span class="result-toast-copy"><strong id="resultToastTitle"></strong><small id="resultToastDetail"></small></span>
-      <button id="dismissResultToast" type="button" aria-label="Đóng thông báo kết quả">×</button>
-    </div>
     <div class="game-content"><section class="board-panel" aria-label="Bàn cờ"><div class="board-wrap"><div class="board-coordinates-top" id="topCoords"></div><div class="board-line"><div class="board-coordinates-left" id="leftCoords"></div><div id="board" class="board" role="grid" aria-label="Bàn cờ Caro 15 nhân 15"></div></div></div><div class="board-legend"><span><i class="last-swatch"></i>Nước vừa đánh</span><span id="moveCount">0 / 225 nước</span></div></section>
     <aside class="game-sidebar"><h2>Người chơi</h2><div class="player" id="playerX"><b class="player-mark x">X</b><span><strong id="playerXName">Người chơi X</strong><small id="xDetail">Quân X</small></span><i></i></div><div class="player" id="playerO"><b class="player-mark o">O</b><span><strong id="playerOName">Người chơi O</strong><small id="oDetail">Quân O</small></span><i></i></div>
     <section class="turn-card" aria-live="polite"><span id="turnSymbol" class="turn-symbol">X</span><h3 id="statusText">Lượt của X</h3><p id="statusSub">Chọn một ô trống để đánh.</p><button class="xp-button" id="retryAiBtn" hidden>Thử lại lượt AI</button></section>

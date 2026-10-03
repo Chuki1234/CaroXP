@@ -31,7 +31,7 @@ Mở http://127.0.0.1:8000. Đổi cổng bằng `CARO_PORT=8080 python3 app.py`
 - **Đúng 5 quân liên tiếp** ngang, dọc hoặc chéo là thắng, không xét chặn hai đầu.
 - Nối thành chuỗi **6 quân trở lên không thắng** theo hướng đó. Nếu đồng thời tạo đúng 5 theo hướng khác thì vẫn thắng.
 - Bàn đầy 225 ô mà không có chuỗi thắng thì hòa. Nước cuối tạo chuỗi thắng được tính thắng trước khi xét hòa.
-- Nhấp chuột để đặt quân; hỗ trợ phím mũi tên và Enter. Ô vàng là nước vừa đánh, ô xanh là chuỗi thắng. Khi ván kết thúc, thông báo kết quả trượt xuống và tự ẩn sau 7 giây; kết quả vẫn hiển thị trên bảng trạng thái.
+- Nhấp chuột để đặt quân; hỗ trợ phím mũi tên và Enter. Ô vàng là nước vừa đánh, ô xanh là chuỗi thắng. Kết quả ván cờ hiển thị trên bảng trạng thái.
 
 ## AI và LLM
 

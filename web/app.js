@@ -1,41 +1,10 @@
 'use strict';
 const $ = id => document.getElementById(id);
-const state = { game: null, busy: false, mode: null, focus: 112, announcedGameId: null };
+const state = { game: null, busy: false, mode: null, focus: 112 };
 
 function toast(message) {
   $('toast').textContent = message; $('toast').hidden = false;
   clearTimeout(toast.timer); toast.timer = setTimeout(() => $('toast').hidden = true, 6000);
-}
-function hideResultToast() {
-  clearTimeout(hideResultToast.timer);
-  $('resultToast').classList.remove('visible');
-  $('resultToast').hidden = true;
-}
-function showResultToast(game) {
-  if (!game.winner || state.announcedGameId === game.id) return;
-  state.announcedGameId = game.id;
-  let kind, icon, title, detail;
-  if (game.winner === 'draw') {
-    [kind, icon, title, detail] = ['draw', '=', 'Ván cờ hòa!', game.mode === 'pve' ? 'Bạn và AI hòa nhau. Bàn cờ đã đầy.' : 'Hai người hòa nhau. Bàn cờ đã đầy.'];
-  } else if (game.mode === 'pve') {
-    const humanWon = game.winner === 'X';
-    [kind, icon, title, detail] = humanWon
-      ? ['win', '✓', 'Bạn chiến thắng!', 'Bạn thắng · AI thua · Đúng 5 quân liên tiếp.']
-      : ['loss', '×', 'Bạn đã thua!', 'AI thắng · Bạn thua · Đúng 5 quân liên tiếp.'];
-  } else {
-    [kind, icon, title, detail] = ['win', '✓', `Người chơi ${game.winner} thắng!`, `Người chơi ${game.winner === 'X' ? 'O' : 'X'} thua · Đúng 5 quân liên tiếp.`];
-  }
-  hideResultToast();
-  const notice = $('resultToast');
-  notice.className = `result-toast ${kind}`;
-  $('resultToastIcon').textContent = icon;
-  $('resultToastTitle').textContent = title;
-  $('resultToastDetail').textContent = detail;
-  notice.hidden = false;
-  // Restart the drop animation for each completed game.
-  void notice.offsetWidth;
-  notice.classList.add('visible');
-  hideResultToast.timer = setTimeout(hideResultToast, 7000);
 }
 async function api(path, data) {
   const response = await fetch(path, data === undefined ? {} : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
@@ -113,7 +82,6 @@ function render() {
   $('aiNote').hidden = !pve; $('aiNote').textContent = game.ai_note || (game.llm_enabled ? 'Đã kết nối cấu hình LLM.' : 'AI sẵn sàng chơi offline.');
   $('gameFooter').textContent = finished ? 'Ván đấu đã kết thúc' : state.busy ? 'Đang xử lý nước đi…' : 'Chúc bạn có một ván cờ vui!';
   $('gameDot').classList.toggle('busy', state.busy);
-  if (finished) showResultToast(game);
 }
 async function aiTurn() {
   if (state.game.mode === 'pve' && state.game.turn === 'O' && !state.game.winner) {
@@ -131,7 +99,6 @@ async function newGame(mode) {
   state.busy = true; syncBusy();
   try {
     state.game = await api('/api/game', { mode }); state.mode = mode;
-    hideResultToast();
     if (!$('gameDialog').open) {
       await resizeDesktop(790, 790);
       $('gameDialog').showModal();
@@ -160,8 +127,6 @@ $('restartBtn').onclick = () => newGame(state.mode);
 $('closeGame').onclick = $('gameBack').onclick = () => { if (!state.busy) $('gameDialog').close(); };
 $('gameDialog').addEventListener('cancel', event => { if (state.busy) event.preventDefault(); });
 $('gameDialog').addEventListener('close', resizeMenuToContent);
-$('gameDialog').addEventListener('close', hideResultToast);
-$('dismissResultToast').onclick = hideResultToast;
 $('helpBtn').onclick = () => { $('rulesDetails').open = !$('rulesDetails').open; };
 $('rulesDetails').addEventListener('toggle', () => requestAnimationFrame(resizeMenuToContent));
 $('minimizeBtn').onclick = () => window.pywebview?.api?.minimize?.();

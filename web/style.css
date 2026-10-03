@@ -17,16 +17,3 @@ dialog{padding:0;color:var(--ink);margin:auto;max-height:calc(100vh - 60px);over
 
 
 @media(max-width:620px){.welcome-banner{padding:25px 22px}.mode-section{padding:20px}.hero-board{margin:0}h1{font-size:26px}}
-
-.game-dialog{position:relative}
-.result-toast{position:absolute;z-index:5;top:83px;left:50%;width:min(405px,calc(100% - 28px));display:flex;align-items:center;gap:11px;padding:10px 11px;border:1px solid #8fa6bb;border-left:4px solid #74a846;border-radius:4px;background:linear-gradient(#fffefa,#f0f4e9);box-shadow:inset 1px 1px #fff,0 5px 13px #28446655;color:#26415b;transform:translateX(-50%)}
-.result-toast.visible{animation:result-roll-down .55s cubic-bezier(.18,.7,.3,1.08) both}
-.result-toast.loss{border-left-color:#d25740;background:linear-gradient(#fffefa,#f9ede8)}
-.result-toast.draw{border-left-color:#6595c7;background:linear-gradient(#fffefa,#eaf2fa)}
-.result-toast-icon{flex:0 0 28px;width:28px;height:28px;display:grid;place-items:center;border:1px solid #709b54;border-radius:3px;background:linear-gradient(#eaf8d9,#badb99);color:#386b2a;font:bold 20px Tahoma}
-.result-toast.loss .result-toast-icon{border-color:#c57b6e;background:linear-gradient(#ffefea,#f4b5a7);color:#a43728}
-.result-toast.draw .result-toast-icon{border-color:#7ca5c9;background:linear-gradient(#ecf7ff,#bed8ed);color:#376e9d}
-.result-toast-copy{min-width:0;display:grid;gap:4px}.result-toast-copy strong{font-size:13px;color:#184f84}.result-toast-copy small{font-size:10px;line-height:1.45;color:#667589}
-.result-toast>button{align-self:flex-start;margin-left:auto;padding:0 2px;border:0;background:transparent;color:#6f7f8f;font:bold 18px Arial;line-height:1}
-.result-toast>button:hover{color:#b24432}
-@keyframes result-roll-down{0%{opacity:0;transform:translate(-50%,-125%) rotate(-3deg)}70%{opacity:1;transform:translate(-50%,7px) rotate(1deg)}100%{opacity:1;transform:translate(-50%,0) rotate(0)}}
