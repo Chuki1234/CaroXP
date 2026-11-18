@@ -295,6 +295,23 @@ document.addEventListener('keydown', event => {
 });
 new ResizeObserver(fitBoard).observe(document.querySelector('#gameScreen .game-content'));
 $('helpBtn').onclick = () => { if ($('stepMode').hidden) showStep('mode', false); $('rulesDetails').open = !$('rulesDetails').open; };
+// Opening the detailed rules grows the desktop window just enough to show them
+// without scrolling; closing them puts the window back. Skipped in full screen
+// (resizing would leave it, and the rules fit there anyway) and in a browser.
+async function fitRules() {
+  const desktop = window.pywebview?.api;
+  if (!desktop?.grow) return;
+  try {
+    if (!$('rulesDetails').open) { await desktop.shrink(); return; }
+    if (window.innerHeight >= screen.height - 1) return;
+    // Body padding (20px) plus a small margin below the XP window.
+    const extra = Math.ceil($('mainWindow').getBoundingClientRect().height + 32 - window.innerHeight);
+    if (extra > 0) await desktop.grow(extra);
+  } catch { /* The menu still scrolls if the window cannot grow. */ }
+}
+$('rulesDetails').addEventListener('toggle', () => requestAnimationFrame(fitRules));
+// Rules opened before the desktop bridge was ready: fit them once it is.
+window.addEventListener('pywebviewready', () => { if ($('rulesDetails').open) fitRules(); });
 $('minimizeBtn').onclick = () => window.pywebview?.api?.minimize?.();
 buildBoard(15);
 api('/api/config').then(config => {
