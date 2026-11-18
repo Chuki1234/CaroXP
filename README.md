@@ -1,6 +1,6 @@
 # Caro XP
 
-Game caro 15×15, backend Python và frontend HTML/CSS/JavaScript, mở trong cửa sổ desktop bằng pywebview. Khi khởi chạy, cửa sổ chọn chế độ có kích thước khoảng 700×660; khi vào ván, cửa sổ nới rộng để hiện bàn 15×15 và thu lại khi về menu. Mở “Luật chơi chi tiết” sẽ tự tăng chiều cao cửa sổ để đọc hết nội dung, rồi thu lại khi gập luật. Có PVP cùng máy và PVE với Minimax; LLM là kết nối tùy chọn, chưa cần API key để chơi.
+Game caro 15×15, backend Python và frontend HTML/CSS/JavaScript, mở trong cửa sổ desktop bằng pywebview. Khi khởi chạy, cửa sổ chọn chế độ có kích thước khoảng 700×660; khi vào ván, cửa sổ nới rộng để hiện bàn 15×15 và thu lại khi về menu. Mở “Luật chơi chi tiết” sẽ tự tăng chiều cao cửa sổ để đọc hết nội dung, rồi thu lại khi gập luật. Có PVP cùng máy và PVE với Minimax; trong PVE có thể chọn thêm bàn 3×3 (đủ 3 quân liên tiếp là thắng, mức Khó duyệt toàn bộ cây trò chơi) ở mục “Bàn cờ” của ván đấu, bàn 15×15 giữ nguyên luật; LLM là kết nối tùy chọn, chưa cần API key để chơi.
 
 ## Chạy ứng dụng desktop
 

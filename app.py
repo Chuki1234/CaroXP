@@ -10,7 +10,8 @@ from urllib.parse import urlparse
 from urllib.error import HTTPError
 from uuid import uuid4
 
-from caro.engine import Game, HUMAN, SECOND, ranked_ai_moves
+from caro.engine import BOARD_SIZES, Game, HUMAN, SECOND, ranked_ai_moves
+from caro import tictactoe
 from caro.llm import choose_move, ANTHROPIC_BASE_URL, ANTHROPIC_MODEL
 
 WEB = Path(__file__).resolve().parent / 'web'
@@ -57,7 +58,19 @@ def valid_level(value):
     return value
 
 
+def play_ai_small(game):
+    """3×3 board: Minimax at the level's depth; the LLM is not used here."""
+    move = tictactoe.best_move(game.board, game.level)
+    if move is None:
+        raise ValueError('AI không còn nước đi.')
+    game.ai_note = ('Minimax duyệt toàn bộ cây trò chơi 3×3.' if game.level == 'hard'
+                    else f'Minimax 3×3 nhìn trước {tictactoe.DEPTHS[game.level]} nước.')
+    game.play(*move)
+
+
 def play_ai(game):
+    if game.size == 3:
+        return play_ai_small(game)
     max_depth, time_limit = LEVELS[game.level]
     candidates = ranked_ai_moves(game.board, max_depth=max_depth, time_limit=time_limit)
     if not candidates:
@@ -154,7 +167,10 @@ class Handler(BaseHTTPRequestHandler):
         mode = data.get('mode')
         if mode not in ('pvp', 'pve'):
             raise ValueError('Chế độ chơi không hợp lệ.')
-        game = Game(mode=mode)
+        size = data.get('size', 15)
+        if type(size) is not int or size not in BOARD_SIZES or (mode == 'pvp' and size != 15):
+            raise ValueError('Kích thước bàn cờ không hợp lệ.')
+        game = Game(mode=mode, size=size)
         if mode == 'pve':
             game.level = valid_level(data.get('level', 'hard'))
             game.provider = data.get('provider', os.getenv('CARO_LLM_PROVIDER') or ('anthropic' if os.getenv('ANTHROPIC_API_KEY') else 'openai'))

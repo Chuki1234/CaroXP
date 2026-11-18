@@ -10,6 +10,7 @@ from unittest.mock import patch
 from app import GAMES, GAME_LOCKS, Handler, create_server, load_local_config, play_ai
 from caro.engine import EMPTY, Game, HUMAN, SECOND, SIZE, is_win, ranked_ai_moves
 from caro.llm import choose_move
+from caro import tictactoe
 
 
 def blank():
@@ -218,6 +219,77 @@ class ApiTests(unittest.TestCase):
         self.handler._move(game['id'], {'row': 0, 'col': 1, 'revision': 3})
         with self.assertRaises(ValueError):
             self.handler._move(game['id'], {'revision': 4, 'level': 'expert'}, ai=True)
+
+
+class SmallBoardTests(unittest.TestCase):
+    """3×3 board in PVE: three in a row wins; the 15×15 rules stay untouched."""
+
+    def play(self, game, moves):
+        for row, col in moves:
+            game.play(row, col)
+
+    def test_three_in_a_row_wins_in_every_direction(self):
+        for line in [[(1, 0), (1, 1), (1, 2)], [(0, 2), (1, 2), (2, 2)], [(0, 0), (1, 1), (2, 2)], [(0, 2), (1, 1), (2, 0)]]:
+            game = Game(mode='pve', size=3, turn=HUMAN)
+            others = [p for p in [(0, 0), (0, 1), (2, 1), (2, 0), (1, 0)] if p not in line]
+            self.play(game, [line[0], others[0], line[1], others[1], line[2]])
+            self.assertEqual(game.winner, HUMAN)
+            self.assertEqual(game.win_cells, sorted(line))
+
+    def test_full_board_draw_and_bounds(self):
+        game = Game(mode='pve', size=3, turn=HUMAN)
+        self.play(game, [(0, 0), (1, 1), (2, 2), (0, 1), (2, 1), (2, 0), (0, 2), (1, 2), (1, 0)])
+        self.assertEqual(game.winner, 'draw')
+        self.assertEqual(game.public()['size'], 3)
+        with self.assertRaises(ValueError): Game(mode='pve', size=3).play(3, 0)
+        with self.assertRaises(ValueError): Game(mode='pve', size=7)
+
+    def test_hard_never_loses_against_any_play(self):
+        def explore(game):
+            if game.done:
+                self.assertNotEqual(game.winner, HUMAN, game.board)
+                return
+            if game.turn == HUMAN:
+                options = [(r, c) for r in range(3) for c in range(3) if game.board[r][c] == EMPTY]
+            else:
+                scored = tictactoe.scored_moves(game.board, 'hard')
+                top = max(score for _, _, score in scored)
+                options = [(r, c) for r, c, score in scored if score == top]
+            for move in options:
+                child = copy.deepcopy(game); child.play(*move); explore(child)
+        for starter in (HUMAN, SECOND):
+            explore(Game(mode='pve', size=3, turn=starter))
+
+    def test_levels_win_block_and_can_be_beaten(self):
+        board = [list('OO.'), list('XX.'), list('X..')]
+        for level in ('easy', 'medium', 'hard'):
+            self.assertEqual(tictactoe.best_move(board, level), (0, 2))
+        threat = [list('XX.'), list('.O.'), list('...')]
+        self.assertEqual(tictactoe.best_move(threat, 'medium'), (0, 2))
+        self.assertEqual(tictactoe.best_move(threat, 'hard'), (0, 2))
+        # Medium does not see X's fork after X takes corners 0,0 and 2,2.
+        fork = [list('X..'), list('.O.'), list('..X')]
+        medium = {(r, c) for r, c, v in tictactoe.scored_moves(fork, 'medium') if v == max(x[2] for x in tictactoe.scored_moves(fork, 'medium'))}
+        self.assertIn((0, 2), medium)  # a corner reply that loses to a fork
+        hard = {(r, c) for r, c, v in tictactoe.scored_moves(fork, 'hard') if v == max(x[2] for x in tictactoe.scored_moves(fork, 'hard'))}
+        self.assertNotIn((0, 2), hard)
+
+    def test_server_creates_small_pve_only_and_never_calls_llm(self):
+        handler = Handler.__new__(Handler)
+        responses = []
+        handler._json = lambda status, data: responses.append((status, copy.deepcopy(data)))
+        with patch('caro.engine.choice', return_value=SECOND), patch.dict('os.environ', {'ANTHROPIC_API_KEY': 'k'}, clear=True):
+            handler._new_game({'mode': 'pve', 'size': 3})
+        status, game = responses[-1]
+        self.assertEqual((status, game['size'], len(game['board']), len(game['board'][0])), (201, 3, 3, 3))
+        with patch('app.choose_move') as llm, patch('app.ranked_ai_moves') as big:
+            handler._move(game['id'], {'revision': 0}, ai=True)
+        llm.assert_not_called(); big.assert_not_called()
+        self.assertEqual(responses[-1][1]['moves'], 1)
+        for payload in [{'mode': 'pvp', 'size': 3}, {'mode': 'pve', 'size': 5}, {'mode': 'pve', 'size': '3'}, {'mode': 'pve', 'size': True}]:
+            with self.assertRaises(ValueError): handler._new_game(payload)
+        handler._new_game({'mode': 'pvp'})
+        self.assertEqual(responses[-1][1]['size'], 15)
 
 
 class LlmTests(unittest.TestCase):
