@@ -55,7 +55,9 @@ dialog{padding:0;color:var(--ink);margin:auto;max-height:calc(100vh - 60px);over
 .countdown-body{padding:22px 20px 24px;text-align:center}
 .countdown-label{margin:0;font-size:9px;font-weight:bold;letter-spacing:1.1px;color:#697e9c}
 .countdown-number{display:grid;place-items:center;height:84px;margin:8px 0 6px;font:bold 66px Tahoma;color:#154a94;text-shadow:1px 2px 0 #bfd0e3}
-.countdown-number.go{font-size:32px;color:#376c23;text-shadow:1px 2px 0 #cfe3b8}
+.countdown-number.go{font-size:28px;letter-spacing:.5px}
+.countdown-number.go.x{color:#c94a36;text-shadow:1px 2px 0 #f1d2ca}
+.countdown-number.go.o{color:#2b6eaf;text-shadow:1px 2px 0 #bfd0e3}
 .countdown-number.pop{animation:countPop .55s ease-out}
 @keyframes countPop{from{transform:scale(1.7);opacity:0}to{transform:none;opacity:1}}
 .countdown-sub{margin:0;font-size:11px;line-height:1.6;color:#63728b}

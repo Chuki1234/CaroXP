@@ -138,19 +138,22 @@ async function recover(error) {
     try { state.game = await api(`/api/game/${state.game.id}`); } catch { /* Keep the last confirmed board and show the error. */ }
   }
 }
-// 3 → 2 → 1 → "Bắt đầu!" in a small XP dialog; resolves when the game may start.
+// 3 → 2 → 1 → who moves first (e.g. "BẠN ĐI TRƯỚC") in a small XP dialog;
+// resolves when the game may start. The starter is only revealed at the end.
 async function countdown() {
   const game = state.game, number = $('countdownNumber');
   const first = game.mode === 'pve' ? (game.starter === 'X' ? 'Bạn đi trước' : 'Máy đi trước') : `${game.starter} đi trước`;
-  $('countdownSub').textContent = `Bàn ${game.size} × ${game.size}${game.mode === 'pve' ? ` · ${LEVELS[state.level][0]}` : ''} — ${first}`;
-  const show = (text, go = false) => {
-    number.textContent = text; number.className = `countdown-number${go ? ' go' : ''}`;
+  $('countdownSub').textContent = `Bàn ${game.size} × ${game.size}${game.mode === 'pve' ? ` · Độ khó ${LEVELS[state.level][0]}` : ' · Hai người chơi'}`;
+  $('countdownLabel').textContent = 'VÁN ĐẤU BẮT ĐẦU SAU';
+  const show = (text, mark = '') => {
+    number.textContent = text; number.className = `countdown-number${mark ? ` go ${mark}` : ''}`;
     void number.offsetWidth; number.classList.add('pop');
   };
   state.counting = true; render();
   $('countdownDialog').showModal();
   for (const n of [3, 2, 1]) { show(String(n)); await sleep(1000); }
-  show('Bắt đầu!', true); await sleep(600);
+  $('countdownLabel').textContent = 'BỐC THĂM LƯỢT ĐI ĐẦU';
+  show(first.toUpperCase(), game.starter.toLowerCase()); await sleep(1200);
   $('countdownDialog').close();
   state.counting = false;
 }
