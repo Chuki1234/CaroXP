@@ -1,0 +1,29 @@
+{
+  "minimax": {
+    "value": 0,
+    "nodes": 549946,
+    "ms": 274.4
+  },
+  "alphabeta": {
+    "value": 0,
+    "nodes": 20866,
+    "ms": 11.1
+  },
+  "first_move_values": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "vs_random_200": {
+    "win": 187,
+    "draw": 13,
+    "loss": 0
+  },
+  "self_play": "draw"
+}

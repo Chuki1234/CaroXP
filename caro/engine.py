@@ -1,4 +1,8 @@
-"""Exact-five Caro rules and time-bounded, threat-aware alpha-beta search."""
+"""Exact-five Caro rules and time-bounded, threat-aware alpha-beta search.
+
+The same Game class also hosts the 3×3 board (three in a row wins); its
+exhaustive Minimax lives in caro/tictactoe.py.
+"""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -9,22 +13,24 @@ from time import monotonic
 
 SIZE = 15
 WIN_LENGTH = 5
+# Supported board sizes and the number in a row each one needs.
+BOARD_SIZES = {15: 5, 3: 3}
 EMPTY, HUMAN, SECOND = '.', 'X', 'O'
 DIRECTIONS = ((1, 0), (0, 1), (1, 1), (1, -1))
 WIN_SCORE = 10_000_000
 
 
-def winning_line(board, row, col, player):
+def winning_line(board, row, col, player, size=SIZE, length=WIN_LENGTH):
     if player not in (HUMAN, SECOND) or board[row][col] != player:
         return []
     for dr, dc in DIRECTIONS:
         line = [(row, col)]
         for sign in (-1, 1):
             r, c = row + sign * dr, col + sign * dc
-            while 0 <= r < SIZE and 0 <= c < SIZE and board[r][c] == player:
+            while 0 <= r < size and 0 <= c < size and board[r][c] == player:
                 line.append((r, c))
                 r, c = r + sign * dr, c + sign * dc
-        if len(line) == WIN_LENGTH:
+        if len(line) == length:
             return sorted(line)
     return []
 
@@ -36,7 +42,8 @@ def is_win(board, row, col, player):
 @dataclass
 class Game:
     mode: str
-    board: list[list[str]] = field(default_factory=lambda: [[EMPTY] * SIZE for _ in range(SIZE)])
+    size: int = SIZE
+    board: list[list[str]] = None
     turn: str = field(default_factory=lambda: choice((HUMAN, SECOND)))
     starter: str = field(init=False)
     winner: str | None = None
@@ -48,9 +55,18 @@ class Game:
     base_url: str = ''
     model: str = ''
     ai_note: str = ''
+    level: str = 'hard'
 
     def __post_init__(self):
+        if self.size not in BOARD_SIZES:
+            raise ValueError('Kích thước bàn cờ không hợp lệ.')
+        if self.board is None:
+            self.board = [[EMPTY] * self.size for _ in range(self.size)]
         self.starter = self.turn
+
+    @property
+    def win_length(self):
+        return BOARD_SIZES[self.size]
 
     @property
     def done(self):
@@ -63,7 +79,7 @@ class Game:
     def play(self, row, col):
         if self.done:
             raise ValueError('Ván đấu đã kết thúc.')
-        if type(row) is not int or type(col) is not int or not (0 <= row < SIZE and 0 <= col < SIZE):
+        if type(row) is not int or type(col) is not int or not (0 <= row < self.size and 0 <= col < self.size):
             raise ValueError('Nước đi nằm ngoài bàn cờ.')
         if self.board[row][col] != EMPTY:
             raise ValueError('Ô này đã được đánh.')
@@ -71,17 +87,17 @@ class Game:
         self.board[row][col] = player
         self.moves += 1
         self.last_move = (row, col)
-        self.win_cells = winning_line(self.board, row, col, player)
+        self.win_cells = winning_line(self.board, row, col, player, self.size, self.win_length)
         if self.win_cells:
             self.winner = player
-        elif self.moves == SIZE * SIZE:
+        elif self.moves == self.size * self.size:
             self.winner = 'draw'
         else:
             self.turn = SECOND if player == HUMAN else HUMAN
 
     def public(self):
         return {key: getattr(self, key) for key in (
-            'mode', 'board', 'turn', 'starter', 'winner', 'moves', 'last_move', 'win_cells', 'ai_note'
+            'mode', 'size', 'board', 'turn', 'starter', 'winner', 'moves', 'last_move', 'win_cells', 'ai_note', 'level'
         )} | {'llm_enabled': self.llm_enabled, 'provider': self.provider}
 
 
