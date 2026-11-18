@@ -15,9 +15,6 @@ def main():
     url = f'http://127.0.0.1:{server.server_port}'
     try:
         class DesktopBridge:
-            def resize(self, width, height):
-                webview.windows[0].resize(int(width), int(height))
-
             def minimize(self):
                 webview.windows[0].minimize()
 

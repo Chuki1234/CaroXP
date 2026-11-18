@@ -6,7 +6,7 @@
 - Cửa sổ: thanh tiêu đề gradient xanh, viền nổi, nền xám kem `#ece9d8`, nút beveled.
 - Chữ: Tahoma với fallback hệ thống; cỡ chữ và mật độ theo ứng dụng desktop cổ điển.
 - Trang đầu: chọn PVP/PVE trực tiếp và xem luật chi tiết. Cấu hình Claude nằm trong file `.env` trên máy, ngoài giao diện.
-- Ván đấu: cửa sổ native nới rộng, dialog modal 756px; bàn 15×15 bên trái, thông tin người chơi và lượt bên phải. Trở về menu thì cửa sổ thu về kích thước ban đầu; khi mở luật chi tiết, cửa sổ tự tăng chiều cao theo nội dung. Dưới 740px chuyển thông tin xuống dưới bàn.
+- Ván đấu: màn hình XP riêng thay cho menu (không phải dialog đè lên), lấp đầy cửa sổ hiện tại; app không tự đổi kích thước cửa sổ native nên giữ nguyên full-screen. Bàn cờ bên trái, thông tin người chơi và lượt bên phải, cả cụm căn giữa; kích thước ô tính theo vùng trống để bàn 15×15 hoặc 3×3 vừa khít. Dưới 600px chuyển thông tin xuống dưới bàn.
 - X đỏ, O xanh, nước cuối vàng, chuỗi thắng xanh lá; nội dung chữ/nhãn hỗ trợ nhận biết ngoài màu sắc.
 - Bàn phím: ô bàn cờ có nhãn hàng/cột, phím mũi tên và Enter; modal giữ focus, có nút đóng.
 - Giảm chuyển động khi hệ thống bật prefers-reduced-motion.

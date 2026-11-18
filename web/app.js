@@ -25,17 +25,31 @@ async function api(path, data) {
   if (!response.ok) throw new Error(body.error || 'Không kết nối được máy chủ.');
   return body;
 }
-async function resizeDesktop(width, height) {
-  if (window.pywebview?.api?.resize) {
-    try { await window.pywebview.api.resize(width, height); }
-    catch { /* Browser mode and GUI resize failures keep the web layout usable. */ }
-  }
+// The app never resizes the native window (that would also drop full screen);
+// the game screen fills whatever size the window has and the board scales to it.
+function fitBoard() {
+  const panel = $('boardPanel'), content = panel.parentElement, n = state.n;
+  if ($('gameScreen').hidden || !n) return;
+  const style = getComputedStyle(content), row = style.flexDirection === 'row';
+  const px = name => parseFloat(style[name]) || 0;
+  // Side by side: the board gets the content width minus the sidebar; stacked
+  // (narrow screens): the panel's own share of the height.
+  const width = row ? content.clientWidth - px('paddingLeft') - px('paddingRight') - $('boardPanel').nextElementSibling.offsetWidth - px('columnGap') : panel.clientWidth;
+  const height = row ? content.clientHeight - px('paddingTop') - px('paddingBottom') : panel.clientHeight;
+  // Board frame: coordinates + borders + padding = 33px wide, 35px tall; legend ≈ 24px.
+  const cell = Math.max(n === 3 ? 48 : 14, Math.floor(Math.min(width - 33, height - 35 - 24) / n));
+  panel.style.setProperty('--cell', `${cell}px`); panel.style.setProperty('--n', n);
+  // Size the panel to the board so board + sidebar stay centred together.
+  panel.style.flex = row ? `0 0 ${n * cell + 33}px` : '';
 }
-function resizeMenuToContent() {
-  // The native window includes a title bar; leave room for that and a small
-  // gutter so the rounded XP border never meets the WebView's clipped edge.
-  const height = Math.max(632, Math.ceil($('mainWindow').getBoundingClientRect().height + 48));
-  return resizeDesktop(700, height);
+function showGame(open) {
+  $('mainWindow').hidden = open; $('gameScreen').hidden = !open;
+  if (open) fitBoard();
+}
+function leaveGame() {
+  if (state.busy) return;
+  showGame(false); showStep('mode', false);
+  $(state.mode === 'pvp' ? 'pvpBtn' : 'pveBtn').focus();
 }
 function syncBusy() {
   for (const id of ['pvpBtn', 'pveBtn', 'restartBtn', 'gameBack', 'closeGame', 'levelSelect', 'sizeSelect', 'confirmStart']) $(id).disabled = state.busy;
@@ -49,6 +63,7 @@ function buildBoard(size) {
   for (let n = 1; n <= size; n++) {
     for (const id of ['topCoords', 'leftCoords']) { const span = document.createElement('span'); span.textContent = n; $(id).append(span); }
   }
+  fitBoard();
   for (let row = 0; row < size; row++) {
     const rowEl = document.createElement('div'); rowEl.className = 'board-row'; rowEl.setAttribute('role', 'row');
     for (let col = 0; col < size; col++) {
@@ -121,11 +136,11 @@ async function newGame(mode) {
   state.busy = true; syncBusy();
   try {
     state.game = await api('/api/game', mode === 'pve' ? { mode, level: state.level, size: state.size } : { mode }); state.mode = mode;
-    if (!$('gameDialog').open) {
-      await resizeDesktop(790, 790);
-      $('gameDialog').showModal();
-    }
-    render(); await aiTurn();
+    const entering = $('gameScreen').hidden;
+    if (entering) showGame(true);
+    render();
+    if (entering) document.querySelector('.cell[tabindex="0"]')?.focus();
+    await aiTurn();
   } catch (error) { await recover(error); }
   finally { state.busy = false; render(); }
 }
@@ -168,7 +183,6 @@ function showStep(step, focus = true) {
     const target = step === 'size' ? `[data-size="${setup.size}"]` : step === 'level' ? `[data-level="${setup.level}"]` : '#pveBtn';
     document.querySelector(`#${STEPS[step][0]} ${target}`)?.focus();
   }
-  requestAnimationFrame(resizeMenuToContent);
 }
 function fillLevelStep() {
   $('levelHeading').textContent = `Chọn độ khó · Bàn ${setup.size} × ${setup.size}`;
@@ -212,16 +226,18 @@ $('confirmStart').onclick = async () => {
   $('confirmDialog').close();
   await newGame('pve');
   // Back on the menu after the game the player starts from the mode choice again.
-  if ($('gameDialog').open) showStep('mode', false);
+  if (!$('gameScreen').hidden) showStep('mode', false);
   else document.querySelector(`#stepLevel [data-level="${setup.level}"]`)?.focus();
 };
 $('pvpBtn').onclick = () => newGame('pvp');
 $('restartBtn').onclick = () => newGame(state.mode);
-$('closeGame').onclick = $('gameBack').onclick = () => { if (!state.busy) $('gameDialog').close(); };
-$('gameDialog').addEventListener('cancel', event => { if (state.busy) event.preventDefault(); });
-$('gameDialog').addEventListener('close', resizeMenuToContent);
+$('closeGame').onclick = $('gameBack').onclick = leaveGame;
+document.addEventListener('keydown', event => {
+  // Escape leaves the game screen, as closing the old game dialog did.
+  if (event.key === 'Escape' && !$('gameScreen').hidden && !$('confirmDialog').open && event.target.tagName !== 'SELECT') leaveGame();
+});
+new ResizeObserver(fitBoard).observe(document.querySelector('#gameScreen .game-content'));
 $('helpBtn').onclick = () => { if ($('stepMode').hidden) showStep('mode', false); $('rulesDetails').open = !$('rulesDetails').open; };
-$('rulesDetails').addEventListener('toggle', () => requestAnimationFrame(resizeMenuToContent));
 $('minimizeBtn').onclick = () => window.pywebview?.api?.minimize?.();
 buildBoard(15);
 api('/api/config').then(config => {
