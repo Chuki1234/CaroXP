@@ -8,11 +8,20 @@
   <main class="xp-window" id="mainWindow">
     <header class="titlebar"><div class="window-title"><span class="app-icon">XO</span><strong>Caro XP</strong></div><div class="window-controls"><button id="minimizeBtn" aria-label="Thu nhỏ">_</button><button id="helpBtn" aria-label="Hướng dẫn">?</button></div></header>
     <div class="welcome-banner"><div><p class="eyebrow">MỘT TRÒ CHƠI QUEN. MỘT ĐỐI THỦ MỚI.</p><h1>Một ván caro nhé?</h1><p>Chọn đối thủ của bạn để bắt đầu.</p></div><div class="hero-board" aria-hidden="true"><b>X</b><b>O</b><b></b><b></b><b>X</b><b></b><b>O</b><b></b><b>X</b></div></div>
-    <section class="mode-section" aria-labelledby="modeHeading"><h2 id="modeHeading">Bạn muốn chơi cùng ai?</h2><div class="mode-options">
+    <section class="mode-section" id="modeSection" aria-labelledby="modeHeading"><div id="stepMode"><h2 id="modeHeading">Bạn muốn chơi cùng ai?</h2><div class="mode-options">
       <button class="mode-option" id="pvpBtn"><span class="mode-art" aria-hidden="true"><b>X</b><i>O</i></span><span class="mode-copy"><small>HAI NGƯỜI · CÙNG MỘT MÁY</small><strong>Chơi cùng bạn bè</strong><span>Thay phiên nhau. Cùng một bàn cờ.</span></span><span class="mode-arrow">›</span></button>
       <button class="mode-option" id="pveBtn"><span class="mode-art robot" aria-hidden="true">▣</span><span class="mode-copy"><small>MỘT NGƯỜI · THỬ THÁCH AI</small><strong>Đấu trí với máy</strong><span>Mỗi nước đi là một thử thách mới.</span></span><span class="mode-arrow">›</span></button>
     </div><div class="rule-strip"><span class="info-icon">i</span><p><b>15 × 15 ô. Đúng 5 quân. Một người thắng.</b><br>Ngang, dọc hoặc chéo · Không xét chặn hai đầu · Bốc ngẫu nhiên lượt đầu.</p></div>
-    <details id="rulesDetails"><summary>Luật chơi chi tiết</summary><p>Hai bên lần lượt đặt X và O vào ô trống. Chuỗi phải có <b>đúng 5 quân liên tiếp</b> để thắng, kể cả khi bị chặn hai đầu. Nước nối thành chuỗi 6 quân trở lên không thắng theo hướng đó. Bàn đầy mà chưa ai thắng là hòa. Trong PVE, bạn cầm X và máy cầm O; O vẫn có thể đi trước.</p><p><b>Bàn 3 × 3</b> (chỉ khi đấu với máy): chọn ở mục “Bàn cờ” trong ván đấu. Đủ 3 quân liên tiếp ngang, dọc hoặc chéo là thắng; các luật còn lại giữ nguyên.</p><p>Nhấp vào ô để đánh. Bạn cũng có thể dùng phím mũi tên để chọn ô và Enter để đánh.</p></details></section>
+    <details id="rulesDetails"><summary>Luật chơi chi tiết</summary><p>Hai bên lần lượt đặt X và O vào ô trống. Chuỗi phải có <b>đúng 5 quân liên tiếp</b> để thắng, kể cả khi bị chặn hai đầu. Nước nối thành chuỗi 6 quân trở lên không thắng theo hướng đó. Bàn đầy mà chưa ai thắng là hòa. Trong PVE, bạn cầm X và máy cầm O; O vẫn có thể đi trước.</p><p><b>Bàn 3 × 3</b> (chỉ khi đấu với máy): chọn ở bước 1 sau khi bấm “Đấu trí với máy”, hoặc đổi ở mục “Bàn cờ” trong ván đấu. Đủ 3 quân liên tiếp ngang, dọc hoặc chéo là thắng; các luật còn lại giữ nguyên.</p><p>Nhấp vào ô để đánh. Bạn cũng có thể dùng phím mũi tên để chọn ô và Enter để đánh.</p></details></div>
+    <div id="stepSize" hidden><div class="step-head"><button class="link-button" id="sizeBack">‹ Quay lại</button><span class="step-count">BƯỚC 1 / 2</span></div><h2 id="sizeHeading">Chọn kích thước bàn cờ</h2><div class="mode-options">
+      <button class="mode-option" data-size="15"><span class="mode-art" aria-hidden="true"><i class="mini-grid g15"></i></span><span class="mode-copy"><small>CARO CỔ ĐIỂN · 225 Ô</small><strong>Bàn 15 × 15</strong><span>Đúng 5 quân liên tiếp là thắng. Không xét chặn hai đầu.</span></span><span class="mode-arrow">›</span></button>
+      <button class="mode-option" data-size="3"><span class="mode-art" aria-hidden="true"><i class="mini-grid g3"></i></span><span class="mode-copy"><small>VÁN NHANH · 9 Ô</small><strong>Bàn 3 × 3</strong><span>Đủ 3 quân ngang, dọc hoặc chéo là thắng.</span></span><span class="mode-arrow">›</span></button>
+    </div></div>
+    <div id="stepLevel" hidden><div class="step-head"><button class="link-button" id="levelBack">‹ Quay lại</button><span class="step-count">BƯỚC 2 / 2</span></div><h2 id="levelHeading">Chọn độ khó</h2><div class="mode-options">
+      <button class="mode-option compact" data-level="easy"><span class="mode-art level-art" aria-hidden="true">★☆☆</span><span class="mode-copy"><small></small><strong>Dễ</strong><span></span></span><span class="mode-arrow">›</span></button>
+      <button class="mode-option compact" data-level="medium"><span class="mode-art level-art" aria-hidden="true">★★☆</span><span class="mode-copy"><small></small><strong>Vừa</strong><span></span></span><span class="mode-arrow">›</span></button>
+      <button class="mode-option compact" data-level="hard"><span class="mode-art level-art" aria-hidden="true">★★★</span><span class="mode-copy"><small></small><strong>Khó</strong><span></span></span><span class="mode-arrow">›</span></button>
+    </div></div></section>
     <footer class="window-status"><span class="status-dot"></span><span id="engineStatus">Sẵn sàng · AI offline</span><span>Không cần tài khoản</span></footer>
   </main>
 
@@ -24,6 +33,12 @@
     <section class="turn-card" aria-live="polite"><span id="turnSymbol" class="turn-symbol">X</span><h3 id="statusText">Lượt của X</h3><p id="statusSub">Chọn một ô trống để đánh.</p><button class="xp-button" id="retryAiBtn" hidden>Thử lại lượt AI</button></section>
     <div class="little-rule"><strong id="ruleTitle">Đúng 5 là thắng</strong><div class="five-marks" id="ruleMarks" aria-hidden="true">× × × × ×</div><p id="ruleText">Không xét chặn hai đầu.<br>6 quân trở lên không tính.</p></div><p class="ai-note" id="aiNote" hidden></p></aside></div>
     <footer class="window-status"><span class="status-dot" id="gameDot"></span><span id="gameFooter">Chúc bạn có một ván cờ vui!</span><button class="link-button" id="gameBack">Đổi chế độ</button></footer>
+  </dialog>
+
+  <dialog id="confirmDialog" class="xp-window confirm-dialog" aria-labelledby="confirmHeading" aria-describedby="confirmLead">
+    <header class="titlebar"><div class="window-title"><span class="app-icon">XO</span><strong id="confirmHeading">Xác nhận ván đấu</strong></div><div class="window-controls"><button class="close-button" id="confirmClose" aria-label="Quay lại chọn độ khó">×</button></div></header>
+    <div class="confirm-body"><span class="info-icon" aria-hidden="true">i</span><div><p class="confirm-lead" id="confirmLead">Bắt đầu ván đấu với máy?</p><dl class="confirm-list"><dt>Đối thủ</dt><dd>Máy tính (Minimax)</dd><dt>Bàn cờ</dt><dd id="confirmSize"></dd><dt>Luật thắng</dt><dd id="confirmRule"></dd><dt>Độ khó</dt><dd id="confirmLevel"></dd></dl><p class="confirm-note">Lượt đi đầu được bốc thăm ngẫu nhiên. Bạn cầm X, máy cầm O.</p></div></div>
+    <div class="confirm-actions"><button class="xp-button" id="confirmBack">Quay lại</button><button class="xp-button primary" id="confirmStart">Bắt đầu</button></div>
   </dialog>
 
   <div id="toast" class="toast" role="alert" hidden></div>

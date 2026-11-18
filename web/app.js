@@ -38,7 +38,7 @@ function resizeMenuToContent() {
   return resizeDesktop(700, height);
 }
 function syncBusy() {
-  for (const id of ['pvpBtn', 'pveBtn', 'restartBtn', 'gameBack', 'closeGame', 'levelSelect', 'sizeSelect']) $(id).disabled = state.busy;
+  for (const id of ['pvpBtn', 'pveBtn', 'restartBtn', 'gameBack', 'closeGame', 'levelSelect', 'sizeSelect', 'confirmStart']) $(id).disabled = state.busy;
   $('board').setAttribute('aria-busy', String(state.busy));
 }
 function buildBoard(size) {
@@ -154,12 +154,73 @@ $('sizeSelect').onchange = event => {
   try { localStorage.setItem('caroSize', String(state.size)); } catch { /* The choice still applies to this session. */ }
   newGame('pve');
 };
-$('pvpBtn').onclick = () => newGame('pvp'); $('pveBtn').onclick = () => newGame('pve');
+// PVE setup: board size, then difficulty, then a confirmation dialog.
+const LEVEL_COPY = {
+  15: { easy: 'Phù hợp để làm quen với luật đúng 5.', medium: 'Máy phòng thủ chắc và biết phản công.', hard: 'Máy tìm sâu nhất, khó bị bắt bài.' },
+  3: { easy: 'Máy chỉ thấy nước thắng ngay trước mắt.', medium: 'Máy biết chặn, nhưng thua nếu bạn tạo thế đôi.', hard: 'Máy duyệt toàn bộ cây — không thể thắng được máy.' },
+};
+const setup = { size: state.size, level: state.level };
+const STEPS = { mode: ['stepMode', 'modeHeading'], size: ['stepSize', 'sizeHeading'], level: ['stepLevel', 'levelHeading'] };
+function showStep(step, focus = true) {
+  for (const [name, [id]] of Object.entries(STEPS)) $(id).hidden = name !== step;
+  $('modeSection').setAttribute('aria-labelledby', STEPS[step][1]);
+  if (focus) {
+    const target = step === 'size' ? `[data-size="${setup.size}"]` : step === 'level' ? `[data-level="${setup.level}"]` : '#pveBtn';
+    document.querySelector(`#${STEPS[step][0]} ${target}`)?.focus();
+  }
+  requestAnimationFrame(resizeMenuToContent);
+}
+function fillLevelStep() {
+  $('levelHeading').textContent = `Chọn độ khó · Bàn ${setup.size} × ${setup.size}`;
+  document.querySelectorAll('#stepLevel [data-level]').forEach(button => {
+    const level = button.dataset.level, [, depth, seconds] = LEVELS[level];
+    button.querySelector('small').textContent = (setup.size === 3 ? SMALL_HINTS[level] : `Độ sâu ${depth} · ${seconds} giây`).toUpperCase();
+    button.querySelector('.mode-copy > span').textContent = LEVEL_COPY[setup.size][level];
+  });
+}
+function openConfirm() {
+  const small = setup.size === 3, level = setup.level;
+  $('confirmSize').textContent = `${setup.size} × ${setup.size} (${setup.size * setup.size} ô)`;
+  $('confirmRule').textContent = small ? 'Đủ 3 quân ngang, dọc hoặc chéo' : 'Đúng 5 quân liên tiếp';
+  $('confirmLevel').textContent = `${LEVELS[level][0]} · ${small ? SMALL_HINTS[level] : `độ sâu ${LEVELS[level][1]}`}`;
+  $('confirmDialog').showModal(); $('confirmStart').focus();
+}
+function closeConfirm() {
+  if (state.busy) return;
+  $('confirmDialog').close();
+  document.querySelector(`#stepLevel [data-level="${setup.level}"]`)?.focus();
+}
+$('pveBtn').onclick = () => { setup.size = state.size; setup.level = state.level; showStep('size'); };
+document.querySelectorAll('#stepSize [data-size]').forEach(button => button.onclick = () => {
+  setup.size = Number(button.dataset.size); fillLevelStep(); showStep('level');
+});
+document.querySelectorAll('#stepLevel [data-level]').forEach(button => button.onclick = () => {
+  setup.level = button.dataset.level; openConfirm();
+});
+$('sizeBack').onclick = () => showStep('mode');
+$('levelBack').onclick = () => showStep('size');
+$('modeSection').addEventListener('keydown', event => {
+  if (event.key !== 'Escape') return;
+  if (!$('stepSize').hidden) showStep('mode'); else if (!$('stepLevel').hidden) showStep('size');
+});
+$('confirmBack').onclick = $('confirmClose').onclick = closeConfirm;
+$('confirmDialog').addEventListener('cancel', event => { event.preventDefault(); closeConfirm(); });
+$('confirmStart').onclick = async () => {
+  if (state.busy) return;
+  state.size = setup.size; state.level = setup.level;
+  try { localStorage.setItem('caroSize', String(state.size)); localStorage.setItem('caroLevel', state.level); } catch { /* The choice still applies to this session. */ }
+  $('confirmDialog').close();
+  await newGame('pve');
+  // Back on the menu after the game the player starts from the mode choice again.
+  if ($('gameDialog').open) showStep('mode', false);
+  else document.querySelector(`#stepLevel [data-level="${setup.level}"]`)?.focus();
+};
+$('pvpBtn').onclick = () => newGame('pvp');
 $('restartBtn').onclick = () => newGame(state.mode);
 $('closeGame').onclick = $('gameBack').onclick = () => { if (!state.busy) $('gameDialog').close(); };
 $('gameDialog').addEventListener('cancel', event => { if (state.busy) event.preventDefault(); });
 $('gameDialog').addEventListener('close', resizeMenuToContent);
-$('helpBtn').onclick = () => { $('rulesDetails').open = !$('rulesDetails').open; };
+$('helpBtn').onclick = () => { if ($('stepMode').hidden) showStep('mode', false); $('rulesDetails').open = !$('rulesDetails').open; };
 $('rulesDetails').addEventListener('toggle', () => requestAnimationFrame(resizeMenuToContent));
 $('minimizeBtn').onclick = () => window.pywebview?.api?.minimize?.();
 buildBoard(15);

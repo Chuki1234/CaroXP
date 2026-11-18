@@ -23,3 +23,22 @@ dialog{padding:0;color:var(--ink);margin:auto;max-height:calc(100vh - 60px);over
 .board-wrap[data-size="3"] .board-coordinates-top{grid-template-columns:repeat(3,calc(var(--cell)*5))}
 .board-wrap[data-size="3"] .board-coordinates-left{grid-template-rows:repeat(3,calc(var(--cell)*5))}
 .board-wrap[data-size="3"] .cell{width:calc(var(--cell)*5);height:calc(var(--cell)*5);font-size:calc(var(--cell)*3)}
+/* PVE setup steps (board size, then difficulty) reuse the mode cards. */
+.step-head{display:flex;align-items:center;justify-content:space-between;margin:-6px 0 11px}
+.step-head .link-button{margin-left:0;font-size:11px}
+.step-count{font-size:8px;font-weight:bold;letter-spacing:.8px;color:#788494}
+.mini-grid{display:block;width:43px;height:43px;border:1px solid #8ea4bf;background-color:#fff;background-image:linear-gradient(#c9d5e4 1px,transparent 1px),linear-gradient(90deg,#c9d5e4 1px,transparent 1px);background-size:var(--g) var(--g);background-position:-1px -1px;box-shadow:1px 2px 0 #bfd0e3}
+.mini-grid.g15{--g:2.8px}
+.mini-grid.g3{--g:14px}
+.mode-option.compact{padding:11px 19px}
+.mode-art.level-art{letter-spacing:1px;font-size:15px;color:#d79b2d}
+/* Confirmation dialog before entering a PVE game. */
+.confirm-dialog{width:390px;max-width:calc(100vw - 24px)}
+.confirm-body{display:flex;gap:14px;padding:20px 22px 4px}
+.confirm-lead{margin:1px 0 13px;font-size:13px;font-weight:bold;color:#224f89}
+.confirm-list{display:grid;grid-template-columns:auto 1fr;gap:7px 16px;margin:0;font-size:11px}
+.confirm-list dt{color:#788494}
+.confirm-list dd{margin:0;color:#24364d}
+.confirm-note{margin:14px 0 0;font-size:10px;line-height:1.7;color:#7b7c72}
+.confirm-actions{display:flex;justify-content:flex-end;gap:8px;padding:16px 22px 18px}
+.confirm-actions .xp-button{min-width:86px}
