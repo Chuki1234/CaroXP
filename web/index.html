@@ -41,5 +41,16 @@
     <div class="confirm-actions"><button class="xp-button" id="confirmBack">Quay lại</button><button class="xp-button primary" id="confirmStart">Bắt đầu</button></div>
   </dialog>
 
+  <dialog id="countdownDialog" class="xp-window countdown-dialog" aria-labelledby="countdownHeading">
+    <header class="titlebar"><div class="window-title"><span class="app-icon">XO</span><strong id="countdownHeading">Chuẩn bị ván đấu</strong></div></header>
+    <div class="countdown-body"><p class="countdown-label">VÁN ĐẤU BẮT ĐẦU SAU</p><span class="countdown-number" id="countdownNumber" aria-live="assertive">3</span><p class="countdown-sub" id="countdownSub"></p></div>
+  </dialog>
+
+  <dialog id="restartDialog" class="xp-window confirm-dialog" aria-labelledby="restartHeading" aria-describedby="restartLead restartNote">
+    <header class="titlebar"><div class="window-title"><span class="app-icon">XO</span><strong id="restartHeading">Ván mới</strong></div><div class="window-controls"><button class="close-button" id="restartClose" aria-label="Tiếp tục ván hiện tại">×</button></div></header>
+    <div class="confirm-body"><span class="info-icon" aria-hidden="true">?</span><div><p class="confirm-lead" id="restartLead">Bắt đầu một ván mới?</p><dl class="confirm-list"><dt>Chế độ</dt><dd id="restartMode"></dd><dt>Bàn cờ</dt><dd id="restartSize"></dd><dt id="restartLevelLabel">Độ khó</dt><dd id="restartLevel"></dd></dl><p class="confirm-note" id="restartNote"></p></div></div>
+    <div class="confirm-actions"><button class="xp-button" id="restartCancel">Tiếp tục ván này</button><button class="xp-button primary" id="restartConfirm">Ván mới</button></div>
+  </dialog>
+
   <div id="toast" class="toast" role="alert" hidden></div>
 </body></html>

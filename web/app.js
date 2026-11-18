@@ -9,7 +9,10 @@ function savedSize() {
 function savedLevel() {
   try { const value = localStorage.getItem('caroLevel'); return LEVELS[value] ? value : 'hard'; } catch { return 'hard'; }
 }
-const state = { game: null, busy: false, mode: null, focus: 112, level: savedLevel(), size: savedSize(), n: 0 };
+const state = { game: null, busy: false, counting: false, mode: null, focus: 112, level: savedLevel(), size: savedSize(), n: 0 };
+// The AI always takes at least this long (plus a little jitter) so its moves are easy to follow.
+const AI_MIN_DELAY = 1100, AI_JITTER = 500;
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 // The 15×15 sidebar rule text, restored when leaving a 3×3 game.
 const RULE_15 = ['ruleTitle', 'ruleMarks', 'ruleText'].map(id => $(id).innerHTML);
 const RULE_3 = ['Đủ 3 là thắng', '× × ×', 'Ngang, dọc hoặc chéo.<br>Bàn đầy là hòa.'];
@@ -52,7 +55,7 @@ function leaveGame() {
   $(state.mode === 'pvp' ? 'pvpBtn' : 'pveBtn').focus();
 }
 function syncBusy() {
-  for (const id of ['pvpBtn', 'pveBtn', 'restartBtn', 'gameBack', 'closeGame', 'levelSelect', 'sizeSelect', 'confirmStart']) $(id).disabled = state.busy;
+  for (const id of ['pvpBtn', 'pveBtn', 'restartBtn', 'gameBack', 'closeGame', 'levelSelect', 'sizeSelect', 'confirmStart', 'restartConfirm']) $(id).disabled = state.busy;
   $('board').setAttribute('aria-busy', String(state.busy));
 }
 function buildBoard(size) {
@@ -112,17 +115,21 @@ function render() {
   symbol.className = `turn-symbol ${game.turn.toLowerCase()}`;
   if (game.winner === 'draw') { symbol.textContent = '='; status.textContent = 'Hòa rồi!'; sub.textContent = 'Bàn cờ đã đầy. Thử lại một ván nữa nhé.'; }
   else if (finished) { symbol.textContent = game.winner; status.textContent = pve ? (game.winner === 'X' ? 'Bạn chiến thắng!' : 'Máy tính thắng!') : `${game.winner} chiến thắng!`; sub.textContent = `${small ? 'Đủ 3' : 'Đúng 5'} quân liên tiếp. Chọn Ván mới để chơi tiếp.`; }
+  else if (state.counting) { symbol.textContent = game.turn; status.textContent = 'Chuẩn bị…'; sub.textContent = 'Ván đấu sắp bắt đầu.'; }
   else if (state.busy && pve && game.turn === 'O') { symbol.textContent = '⋯'; symbol.classList.add('thinking'); status.textContent = 'AI đang suy nghĩ'; sub.textContent = 'Đang tìm nước đi tốt nhất…'; }
   else if (pve && game.turn === 'O') { symbol.textContent = 'O'; status.textContent = 'Đến lượt AI'; sub.textContent = 'Nhấn thử lại để tiếp tục ván đấu.'; }
   else { symbol.textContent = game.turn; status.textContent = pve ? 'Đến lượt bạn' : `Đến lượt ${game.turn}`; sub.textContent = state.busy ? 'Đang ghi nhận nước đi…' : 'Chọn một ô trống để đánh.'; }
   $('retryAiBtn').hidden = state.busy || finished || !pve || game.turn !== 'O';
   $('aiNote').hidden = !pve; $('aiNote').textContent = game.ai_note || (game.llm_enabled && !small ? 'Đã kết nối cấu hình LLM.' : 'AI sẵn sàng chơi offline.');
-  $('gameFooter').textContent = finished ? 'Ván đấu đã kết thúc' : state.busy ? 'Đang xử lý nước đi…' : 'Chúc bạn có một ván cờ vui!';
+  $('gameFooter').textContent = finished ? 'Ván đấu đã kết thúc' : state.counting ? 'Ván đấu sắp bắt đầu…' : state.busy ? 'Đang xử lý nước đi…' : 'Chúc bạn có một ván cờ vui!';
   $('gameDot').classList.toggle('busy', state.busy);
 }
 async function aiTurn() {
   if (state.game.mode === 'pve' && state.game.turn === 'O' && !state.game.winner) {
-    render(); state.game = await api(`/api/game/${state.game.id}/ai`, { revision: state.game.moves, level: state.level }); render();
+    render();
+    const thinking = sleep(AI_MIN_DELAY + Math.random() * AI_JITTER);
+    const next = await api(`/api/game/${state.game.id}/ai`, { revision: state.game.moves, level: state.level });
+    await thinking; state.game = next; render();
   }
 }
 async function recover(error) {
@@ -130,6 +137,22 @@ async function recover(error) {
   if (state.game) {
     try { state.game = await api(`/api/game/${state.game.id}`); } catch { /* Keep the last confirmed board and show the error. */ }
   }
+}
+// 3 → 2 → 1 → "Bắt đầu!" in a small XP dialog; resolves when the game may start.
+async function countdown() {
+  const game = state.game, number = $('countdownNumber');
+  const first = game.mode === 'pve' ? (game.starter === 'X' ? 'Bạn đi trước' : 'Máy đi trước') : `${game.starter} đi trước`;
+  $('countdownSub').textContent = `Bàn ${game.size} × ${game.size}${game.mode === 'pve' ? ` · ${LEVELS[state.level][0]}` : ''} — ${first}`;
+  const show = (text, go = false) => {
+    number.textContent = text; number.className = `countdown-number${go ? ' go' : ''}`;
+    void number.offsetWidth; number.classList.add('pop');
+  };
+  state.counting = true; render();
+  $('countdownDialog').showModal();
+  for (const n of [3, 2, 1]) { show(String(n)); await sleep(1000); }
+  show('Bắt đầu!', true); await sleep(600);
+  $('countdownDialog').close();
+  state.counting = false;
 }
 async function newGame(mode) {
   if (state.busy) return;
@@ -139,10 +162,14 @@ async function newGame(mode) {
     const entering = $('gameScreen').hidden;
     if (entering) showGame(true);
     render();
-    if (entering) document.querySelector('.cell[tabindex="0"]')?.focus();
+    await countdown();
+    document.querySelector('.cell[tabindex="0"]')?.focus();
     await aiTurn();
   } catch (error) { await recover(error); }
-  finally { state.busy = false; render(); }
+  finally {
+    if ($('countdownDialog').open) $('countdownDialog').close();
+    state.counting = false; state.busy = false; render();
+  }
 }
 async function move(row, col) {
   const game = state.game;
@@ -164,11 +191,38 @@ $('levelSelect').onchange = event => {
   try { localStorage.setItem('caroLevel', state.level); } catch { /* The choice still applies to this session. */ }
   render(); toast(`Độ khó: ${LEVELS[state.level][0]} — áp dụng từ nước tiếp theo của AI.`);
 };
-$('sizeSelect').onchange = event => {
-  state.size = event.target.value === '3' ? 3 : 15;
-  try { localStorage.setItem('caroSize', String(state.size)); } catch { /* The choice still applies to this session. */ }
-  newGame('pve');
+// "Ván mới" and changing the board size mid-game both ask before discarding the game.
+let restartSize = 15;
+function askRestart(size) {
+  const game = state.game;
+  if (!game || state.busy) return;
+  restartSize = size; const pve = game.mode === 'pve';
+  $('restartLead').textContent = game.winner ? 'Chơi thêm một ván?' : 'Bắt đầu một ván mới?';
+  $('restartNote').textContent = game.winner ? 'Lượt đi đầu sẽ được bốc thăm lại.' : 'Ván đang chơi sẽ bị hủy và không được lưu lại.';
+  $('restartMode').textContent = pve ? 'Người vs Máy' : 'Người vs Người';
+  $('restartSize').textContent = `${size} × ${size}${size !== game.size ? ' (đổi bàn)' : ''}`;
+  $('restartLevelLabel').hidden = $('restartLevel').hidden = !pve;
+  $('restartLevel').textContent = LEVELS[state.level][0];
+  $('restartDialog').showModal(); $('restartConfirm').focus();
+}
+function cancelRestart() {
+  $('restartDialog').close();
+  if (state.game) $('sizeSelect').value = String(state.game.size);
+  $('restartBtn').focus();
+}
+$('restartConfirm').onclick = () => {
+  if (state.busy) return;
+  if (state.mode === 'pve' && restartSize !== state.size) {
+    state.size = restartSize;
+    try { localStorage.setItem('caroSize', String(state.size)); } catch { /* The choice still applies to this session. */ }
+  }
+  $('restartDialog').close();
+  newGame(state.mode);
 };
+$('restartCancel').onclick = $('restartClose').onclick = cancelRestart;
+$('restartDialog').addEventListener('cancel', event => { event.preventDefault(); cancelRestart(); });
+$('countdownDialog').addEventListener('cancel', event => event.preventDefault());
+$('sizeSelect').onchange = event => askRestart(event.target.value === '3' ? 3 : 15);
 // PVE setup: board size, then difficulty, then a confirmation dialog.
 const LEVEL_COPY = {
   15: { easy: 'Phù hợp để làm quen với luật đúng 5.', medium: 'Máy phòng thủ chắc và biết phản công.', hard: 'Máy tìm sâu nhất, khó bị bắt bài.' },
@@ -230,11 +284,11 @@ $('confirmStart').onclick = async () => {
   else document.querySelector(`#stepLevel [data-level="${setup.level}"]`)?.focus();
 };
 $('pvpBtn').onclick = () => newGame('pvp');
-$('restartBtn').onclick = () => newGame(state.mode);
+$('restartBtn').onclick = () => askRestart(state.game?.size ?? 15);
 $('closeGame').onclick = $('gameBack').onclick = leaveGame;
 document.addEventListener('keydown', event => {
   // Escape leaves the game screen, as closing the old game dialog did.
-  if (event.key === 'Escape' && !$('gameScreen').hidden && !$('confirmDialog').open && event.target.tagName !== 'SELECT') leaveGame();
+  if (event.key === 'Escape' && !$('gameScreen').hidden && !document.querySelector('dialog[open]') && event.target.tagName !== 'SELECT') leaveGame();
 });
 new ResizeObserver(fitBoard).observe(document.querySelector('#gameScreen .game-content'));
 $('helpBtn').onclick = () => { if ($('stepMode').hidden) showStep('mode', false); $('rulesDetails').open = !$('rulesDetails').open; };

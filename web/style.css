@@ -50,3 +50,12 @@ dialog{padding:0;color:var(--ink);margin:auto;max-height:calc(100vh - 60px);over
 .game-screen .cell{font-size:calc(var(--cell)*.7)}
 .game-screen .board-coordinates-top span,.game-screen .board-coordinates-left span{font-size:clamp(9px,calc(var(--cell)*.3),13px)}
 @media(max-width:600px){.game-screen .game-sidebar{flex:0 0 auto;overflow:visible}}
+/* Countdown before each game starts. */
+.countdown-dialog{width:300px;max-width:calc(100vw - 24px)}
+.countdown-body{padding:22px 20px 24px;text-align:center}
+.countdown-label{margin:0;font-size:9px;font-weight:bold;letter-spacing:1.1px;color:#697e9c}
+.countdown-number{display:grid;place-items:center;height:84px;margin:8px 0 6px;font:bold 66px Tahoma;color:#154a94;text-shadow:1px 2px 0 #bfd0e3}
+.countdown-number.go{font-size:32px;color:#376c23;text-shadow:1px 2px 0 #cfe3b8}
+.countdown-number.pop{animation:countPop .55s ease-out}
+@keyframes countPop{from{transform:scale(1.7);opacity:0}to{transform:none;opacity:1}}
+.countdown-sub{margin:0;font-size:11px;line-height:1.6;color:#63728b}
