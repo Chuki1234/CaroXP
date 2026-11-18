@@ -1,0 +1,16 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "caro-web",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "app.py"
+      ],
+      "port": 8765,
+      "env": {
+        "CARO_PORT": "8765"
+      }
+    }
+  ]
+}

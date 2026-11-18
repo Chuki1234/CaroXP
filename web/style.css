@@ -17,3 +17,4 @@ dialog{padding:0;color:var(--ink);margin:auto;max-height:calc(100vh - 60px);over
 
 
 @media(max-width:620px){.welcome-banner{padding:25px 22px}.mode-section{padding:20px}.hero-board{margin:0}h1{font-size:26px}}
+.level-picker{display:flex;align-items:center;gap:6px;font-size:11px;color:#46596d;margin-left:auto}.level-picker[hidden]{display:none}.level-picker select{font:11px Tahoma,Arial,sans-serif;padding:2px 4px;border:1px solid #7f9db9;border-radius:2px;background:#fff;color:#1d2b3a}.level-picker small{font-size:9px;color:#848879}.level-picker:not([hidden])+.xp-button{margin-left:0}

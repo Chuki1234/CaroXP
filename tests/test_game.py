@@ -200,8 +200,24 @@ class ApiTests(unittest.TestCase):
         with self.assertRaises(ValueError): self.handler._move(game['id'], {'revision': 0}, ai=True)
 
     def test_bad_settings_rejected(self):
-        for payload in [{'mode': []}, {'mode': 'pve', 'model': 'only'}, {'mode': 'pve', 'model': 'x', 'base_url': 'http://example.com/v1'}]:
+        for payload in [{'mode': []}, {'mode': 'pve', 'model': 'only'}, {'mode': 'pve', 'model': 'x', 'base_url': 'http://example.com/v1'},
+                        {'mode': 'pve', 'level': 'impossible'}]:
             with self.assertRaises(ValueError): self.new_game(payload)
+
+    def test_difficulty_sets_depth_and_time_and_can_change_mid_game(self):
+        game = self.new_game({'mode': 'pve', 'level': 'easy'}, SECOND)
+        self.assertEqual(game['level'], 'easy')
+        with patch('app.ranked_ai_moves', return_value=[(7, 7, 0)]) as search:
+            self.handler._move(game['id'], {'revision': 0}, ai=True)
+        self.assertEqual(search.call_args.kwargs, {'max_depth': 2, 'time_limit': 0.5})
+        self.handler._move(game['id'], {'row': 0, 'col': 0, 'revision': 1})
+        with patch('app.ranked_ai_moves', return_value=[(7, 8, 0)]) as search:
+            self.handler._move(game['id'], {'revision': 2, 'level': 'hard'}, ai=True)
+        self.assertEqual(search.call_args.kwargs, {'max_depth': 4, 'time_limit': 1.5})
+        self.assertEqual(self.response[1]['level'], 'hard')
+        self.handler._move(game['id'], {'row': 0, 'col': 1, 'revision': 3})
+        with self.assertRaises(ValueError):
+            self.handler._move(game['id'], {'revision': 4, 'level': 'expert'}, ai=True)
 
 
 class LlmTests(unittest.TestCase):

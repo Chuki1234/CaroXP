@@ -39,6 +39,8 @@ GAMES: dict[str, Game] = {}
 GAME_LOCKS: dict[str, Lock] = {}
 GAMES_LOCK = Lock()
 MAX_BODY = 16_384
+# Difficulty levels shown in the interface: (maximum search depth, time limit in seconds).
+LEVELS = {'easy': (2, 0.5), 'medium': (3, 1.0), 'hard': (4, 1.5)}
 
 
 def valid_base_url(value):
@@ -49,8 +51,15 @@ def valid_base_url(value):
                      (parsed.scheme == 'http' and parsed.hostname in {'localhost', '127.0.0.1', '::1'})))
 
 
+def valid_level(value):
+    if value not in LEVELS:
+        raise ValueError('Độ khó không hợp lệ.')
+    return value
+
+
 def play_ai(game):
-    candidates = ranked_ai_moves(game.board)
+    max_depth, time_limit = LEVELS[game.level]
+    candidates = ranked_ai_moves(game.board, max_depth=max_depth, time_limit=time_limit)
     if not candidates:
         raise ValueError('AI không còn nước đi.')
     row, col, best_score = candidates[0]
@@ -147,6 +156,7 @@ class Handler(BaseHTTPRequestHandler):
             raise ValueError('Chế độ chơi không hợp lệ.')
         game = Game(mode=mode)
         if mode == 'pve':
+            game.level = valid_level(data.get('level', 'hard'))
             game.provider = data.get('provider', os.getenv('CARO_LLM_PROVIDER') or ('anthropic' if os.getenv('ANTHROPIC_API_KEY') else 'openai'))
             if game.provider not in ('anthropic', 'openai'):
                 raise ValueError('Nhà cung cấp LLM không hợp lệ.')
@@ -195,6 +205,8 @@ class Handler(BaseHTTPRequestHandler):
             if ai:
                 if game.mode != 'pve' or game.turn != SECOND:
                     raise ValueError('Chưa đến lượt AI.')
+                # The player may change difficulty during a game; it applies from this AI move on.
+                game.level = valid_level(data.get('level', game.level))
                 play_ai(game)
             else:
                 if game.mode == 'pve' and game.turn != HUMAN:

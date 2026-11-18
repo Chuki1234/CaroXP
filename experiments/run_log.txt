@@ -1,0 +1,84 @@
+== E1: Minimax thuần vs Alpha-Beta theo độ sâu ==
+{'position': 'P1 khai cuộc (4 quân)', 'depth': 1, 'minimax_nodes': 16, 'minimax_ms': 3.6, 'ab_nodes': 16, 'ab_ms': 2.8, 'ab_cutoffs': 0, 'same_move': True, 'move': (6, 7), 'reduction_pct': 0.0}
+{'position': 'P1 khai cuộc (4 quân)', 'depth': 2, 'minimax_nodes': 160, 'minimax_ms': 17.8, 'ab_nodes': 69, 'ab_ms': 9.6, 'ab_cutoffs': 14, 'same_move': True, 'move': (6, 7), 'reduction_pct': 56.9}
+{'position': 'P1 khai cuộc (4 quân)', 'depth': 3, 'minimax_nodes': 1472, 'minimax_ms': 107.0, 'ab_nodes': 326, 'ab_ms': 32.6, 'ab_cutoffs': 52, 'same_move': True, 'move': (5, 6), 'reduction_pct': 77.9}
+{'position': 'P1 khai cuộc (4 quân)', 'depth': 4, 'minimax_nodes': 14592, 'minimax_ms': 1118.4, 'ab_nodes': 1034, 'ab_ms': 140.5, 'ab_cutoffs': 269, 'same_move': True, 'move': (6, 7), 'reduction_pct': 92.9}
+{'position': 'P2 trung cuộc (12 quân)', 'depth': 1, 'minimax_nodes': 16, 'minimax_ms': 1.2, 'ab_nodes': 16, 'ab_ms': 1.1, 'ab_cutoffs': 0, 'same_move': True, 'move': (9, 10), 'reduction_pct': 0.0}
+{'position': 'P2 trung cuộc (12 quân)', 'depth': 2, 'minimax_nodes': 160, 'minimax_ms': 12.9, 'ab_nodes': 81, 'ab_ms': 9.5, 'ab_cutoffs': 13, 'same_move': True, 'move': (9, 10), 'reduction_pct': 49.4}
+{'position': 'P2 trung cuộc (12 quân)', 'depth': 3, 'minimax_nodes': 1080, 'minimax_ms': 118.5, 'ab_nodes': 181, 'ab_ms': 33.0, 'ab_cutoffs': 37, 'same_move': True, 'move': (9, 10), 'reduction_pct': 83.2}
+{'position': 'P2 trung cuộc (12 quân)', 'depth': 4, 'minimax_nodes': 9472, 'minimax_ms': 952.0, 'ab_nodes': 696, 'ab_ms': 123.5, 'ab_cutoffs': 159, 'same_move': True, 'move': (9, 10), 'reduction_pct': 92.7}
+{'position': 'P3 chiến thuật (12 quân)', 'depth': 1, 'minimax_nodes': 16, 'minimax_ms': 1.1, 'ab_nodes': 16, 'ab_ms': 1.0, 'ab_cutoffs': 0, 'same_move': True, 'move': (7, 8), 'reduction_pct': 0.0}
+{'position': 'P3 chiến thuật (12 quân)', 'depth': 2, 'minimax_nodes': 160, 'minimax_ms': 13.5, 'ab_nodes': 61, 'ab_ms': 9.2, 'ab_cutoffs': 15, 'same_move': True, 'move': (7, 8), 'reduction_pct': 61.9}
+{'position': 'P3 chiến thuật (12 quân)', 'depth': 3, 'minimax_nodes': 1092, 'minimax_ms': 120.0, 'ab_nodes': 179, 'ab_ms': 29.2, 'ab_cutoffs': 26, 'same_move': True, 'move': (7, 8), 'reduction_pct': 83.6}
+{'position': 'P3 chiến thuật (12 quân)', 'depth': 4, 'minimax_nodes': 9072, 'minimax_ms': 943.6, 'ab_nodes': 491, 'ab_ms': 96.8, 'ab_cutoffs': 125, 'same_move': True, 'move': (7, 8), 'reduction_pct': 94.6}
+== E2: Ảnh hưởng của sắp xếp nước đi (Alpha-Beta, độ sâu 3 và 4) ==
+{'position': 'P1 khai cuộc (4 quân)', 'depth': 3, 'ordered_nodes': 326, 'ordered_ms': 33.7, 'shuffled_nodes_mean': 401, 'shuffled_ms_mean': 35.7}
+{'position': 'P1 khai cuộc (4 quân)', 'depth': 4, 'ordered_nodes': 1034, 'ordered_ms': 140.7, 'shuffled_nodes_mean': 1991, 'shuffled_ms_mean': 236.8}
+{'position': 'P2 trung cuộc (12 quân)', 'depth': 3, 'ordered_nodes': 181, 'ordered_ms': 32.9, 'shuffled_nodes_mean': 263, 'shuffled_ms_mean': 40.7}
+{'position': 'P2 trung cuộc (12 quân)', 'depth': 4, 'ordered_nodes': 696, 'ordered_ms': 126.4, 'shuffled_nodes_mean': 1330, 'shuffled_ms_mean': 219.6}
+{'position': 'P3 chiến thuật (12 quân)', 'depth': 3, 'ordered_nodes': 179, 'ordered_ms': 29.2, 'shuffled_nodes_mean': 365, 'shuffled_ms_mean': 56.7}
+{'position': 'P3 chiến thuật (12 quân)', 'depth': 4, 'ordered_nodes': 491, 'ordered_ms': 95.9, 'shuffled_nodes_mean': 1433, 'shuffled_ms_mean': 233.5}
+== E3: Độ sâu đạt được trong 1,5 giây (ranked_ai_moves) ==
+{'position': 'P1 khai cuộc (4 quân)', 'max_depth': 2, 'ms': 10.4, 'best': (6, 7), 'score': 0}
+{'position': 'P1 khai cuộc (4 quân)', 'max_depth': 3, 'ms': 81.5, 'best': (5, 6), 'score': 1536}
+{'position': 'P1 khai cuộc (4 quân)', 'max_depth': 4, 'ms': 431.8, 'best': (6, 7), 'score': 0}
+{'position': 'P2 trung cuộc (12 quân)', 'max_depth': 2, 'ms': 13.6, 'best': (9, 10), 'score': -16758}
+{'position': 'P2 trung cuộc (12 quân)', 'max_depth': 3, 'ms': 109.8, 'best': (9, 10), 'score': 1272}
+{'position': 'P2 trung cuộc (12 quân)', 'max_depth': 4, 'ms': 435.7, 'best': (9, 10), 'score': -16306}
+{'position': 'P3 chiến thuật (12 quân)', 'max_depth': 2, 'ms': 13.7, 'best': (7, 8), 'score': -16872}
+{'position': 'P3 chiến thuật (12 quân)', 'max_depth': 3, 'ms': 107.3, 'best': (7, 8), 'score': 116}
+{'position': 'P3 chiến thuật (12 quân)', 'max_depth': 4, 'ms': 356.8, 'best': (7, 8), 'score': -17412}
+== E4: Đấu với các đối thủ ==
+  [AI(d=4) vs Ngẫu nhiên] ván 1/12: AI thắng sau 10 nước
+  [AI(d=4) vs Ngẫu nhiên] ván 2/12: AI thắng sau 9 nước
+  [AI(d=4) vs Ngẫu nhiên] ván 3/12: AI thắng sau 13 nước
+  [AI(d=4) vs Ngẫu nhiên] ván 4/12: AI thắng sau 10 nước
+  [AI(d=4) vs Ngẫu nhiên] ván 5/12: AI thắng sau 10 nước
+  [AI(d=4) vs Ngẫu nhiên] ván 6/12: AI thắng sau 9 nước
+  [AI(d=4) vs Ngẫu nhiên] ván 7/12: AI thắng sau 9 nước
+  [AI(d=4) vs Ngẫu nhiên] ván 8/12: AI thắng sau 10 nước
+  [AI(d=4) vs Ngẫu nhiên] ván 9/12: AI thắng sau 14 nước
+  [AI(d=4) vs Ngẫu nhiên] ván 10/12: AI thắng sau 15 nước
+  [AI(d=4) vs Ngẫu nhiên] ván 11/12: AI thắng sau 9 nước
+  [AI(d=4) vs Ngẫu nhiên] ván 12/12: AI thắng sau 12 nước
+  [AI(d=4) vs Tham lam 1 lớp] ván 1/12: AI thắng sau 12 nước
+  [AI(d=4) vs Tham lam 1 lớp] ván 2/12: AI thắng sau 15 nước
+  [AI(d=4) vs Tham lam 1 lớp] ván 3/12: AI thắng sau 9 nước
+  [AI(d=4) vs Tham lam 1 lớp] ván 4/12: AI thắng sau 12 nước
+  [AI(d=4) vs Tham lam 1 lớp] ván 5/12: AI thắng sau 18 nước
+  [AI(d=4) vs Tham lam 1 lớp] ván 6/12: AI thắng sau 9 nước
+  [AI(d=4) vs Tham lam 1 lớp] ván 7/12: AI thắng sau 17 nước
+  [AI(d=4) vs Tham lam 1 lớp] ván 8/12: AI thắng sau 12 nước
+  [AI(d=4) vs Tham lam 1 lớp] ván 9/12: AI thắng sau 12 nước
+  [AI(d=4) vs Tham lam 1 lớp] ván 10/12: AI thắng sau 9 nước
+  [AI(d=4) vs Tham lam 1 lớp] ván 11/12: AI thắng sau 15 nước
+  [AI(d=4) vs Tham lam 1 lớp] ván 12/12: AI thắng sau 18 nước
+  [AI(d=2) vs Tham lam 1 lớp] ván 1/12: AI thua sau 21 nước
+  [AI(d=2) vs Tham lam 1 lớp] ván 2/12: AI thắng sau 13 nước
+  [AI(d=2) vs Tham lam 1 lớp] ván 3/12: AI thắng sau 11 nước
+  [AI(d=2) vs Tham lam 1 lớp] ván 4/12: AI thắng sau 12 nước
+  [AI(d=2) vs Tham lam 1 lớp] ván 5/12: AI thắng sau 12 nước
+  [AI(d=2) vs Tham lam 1 lớp] ván 6/12: AI thắng sau 9 nước
+  [AI(d=2) vs Tham lam 1 lớp] ván 7/12: AI thắng sau 17 nước
+  [AI(d=2) vs Tham lam 1 lớp] ván 8/12: AI thắng sau 12 nước
+  [AI(d=2) vs Tham lam 1 lớp] ván 9/12: AI thắng sau 12 nước
+  [AI(d=2) vs Tham lam 1 lớp] ván 10/12: AI thắng sau 11 nước
+  [AI(d=2) vs Tham lam 1 lớp] ván 11/12: AI thắng sau 9 nước
+  [AI(d=2) vs Tham lam 1 lớp] ván 12/12: AI thắng sau 12 nước
+  [AI(d=4) vs AI(d=2)] ván 1/12: AI thắng sau 26 nước
+  [AI(d=4) vs AI(d=2)] ván 2/12: AI thắng sau 17 nước
+  [AI(d=4) vs AI(d=2)] ván 3/12: AI thắng sau 25 nước
+  [AI(d=4) vs AI(d=2)] ván 4/12: AI thua sau 27 nước
+  [AI(d=4) vs AI(d=2)] ván 5/12: AI thắng sau 28 nước
+  [AI(d=4) vs AI(d=2)] ván 6/12: AI thắng sau 41 nước
+  [AI(d=4) vs AI(d=2)] ván 7/12: AI thua sau 20 nước
+  [AI(d=4) vs AI(d=2)] ván 8/12: AI thắng sau 24 nước
+  [AI(d=4) vs AI(d=2)] ván 9/12: AI thắng sau 24 nước
+  [AI(d=4) vs AI(d=2)] ván 10/12: AI thắng sau 25 nước
+  [AI(d=4) vs AI(d=2)] ván 11/12: AI thắng sau 23 nước
+  [AI(d=4) vs AI(d=2)] ván 12/12: AI thắng sau 52 nước
+{'name': 'AI(d=4) vs Ngẫu nhiên', 'games': 12, 'win': 12, 'draw': 0, 'loss': 0, 'avg_moves': 10.833333333333334, 'ai_avg_s': 0.2521130184821751, 'ai_max_s': 0.49244566700508585}
+{'name': 'AI(d=4) vs Tham lam 1 lớp', 'games': 12, 'win': 12, 'draw': 0, 'loss': 0, 'avg_moves': 13.166666666666666, 'ai_avg_s': 0.27207960529963854, 'ai_max_s': 0.6045008749933913}
+{'name': 'AI(d=2) vs Tham lam 1 lớp', 'games': 12, 'win': 11, 'draw': 0, 'loss': 1, 'avg_moves': 12.583333333333334, 'ai_avg_s': 0.00937178918122134, 'ai_max_s': 0.014618250002968125}
+{'name': 'AI(d=4) vs AI(d=2)', 'games': 12, 'win': 10, 'draw': 0, 'loss': 2, 'avg_moves': 27.666666666666668, 'ai_avg_s': 0.3320251746987103, 'ai_max_s': 0.8434032910008682}
+Đã ghi /Users/nguyenloc/Study/AM/final/experiments/results.json

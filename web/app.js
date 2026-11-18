@@ -1,6 +1,10 @@
 'use strict';
 const $ = id => document.getElementById(id);
-const state = { game: null, busy: false, mode: null, focus: 112 };
+const LEVELS = { easy: ['Dễ', 2, '0,5'], medium: ['Vừa', 3, '1'], hard: ['Khó', 4, '1,5'] };
+function savedLevel() {
+  try { const value = localStorage.getItem('caroLevel'); return LEVELS[value] ? value : 'hard'; } catch { return 'hard'; }
+}
+const state = { game: null, busy: false, mode: null, focus: 112, level: savedLevel() };
 
 function toast(message) {
   $('toast').textContent = message; $('toast').hidden = false;
@@ -26,7 +30,7 @@ function resizeMenuToContent() {
   return resizeDesktop(700, height);
 }
 function syncBusy() {
-  for (const id of ['pvpBtn', 'pveBtn', 'restartBtn', 'gameBack', 'closeGame']) $(id).disabled = state.busy;
+  for (const id of ['pvpBtn', 'pveBtn', 'restartBtn', 'gameBack', 'closeGame', 'levelSelect']) $(id).disabled = state.busy;
   $('board').setAttribute('aria-busy', String(state.busy));
 }
 function buildBoard() {
@@ -59,7 +63,10 @@ function render() {
   $('starterLabel').textContent = `Bốc thăm: ${pve ? (game.starter === 'X' ? 'bạn' : 'AI') : game.starter} đi trước`;
   $('playerXName').textContent = pve ? 'Bạn' : 'Người chơi X';
   $('playerOName').textContent = pve ? 'Máy tính' : 'Người chơi O';
-  $('oDetail').textContent = pve ? (game.llm_enabled ? 'Minimax + LLM' : 'Minimax · Offline') : 'Quân O';
+  const [levelName, depth, seconds] = LEVELS[state.level];
+  $('levelPicker').hidden = !pve; $('levelSelect').value = state.level;
+  $('levelHint').textContent = `Độ sâu ${depth} · ${seconds} giây`;
+  $('oDetail').textContent = pve ? `${game.llm_enabled ? 'Minimax + LLM' : 'Minimax'} · ${levelName}` : 'Quân O';
   $('playerX').classList.toggle('active', !finished && game.turn === 'X');
   $('playerO').classList.toggle('active', !finished && game.turn === 'O');
   const wins = new Set((game.win_cells || []).map(([r, c]) => r * 15 + c));
@@ -85,7 +92,7 @@ function render() {
 }
 async function aiTurn() {
   if (state.game.mode === 'pve' && state.game.turn === 'O' && !state.game.winner) {
-    render(); state.game = await api(`/api/game/${state.game.id}/ai`, { revision: state.game.moves }); render();
+    render(); state.game = await api(`/api/game/${state.game.id}/ai`, { revision: state.game.moves, level: state.level }); render();
   }
 }
 async function recover(error) {
@@ -98,7 +105,7 @@ async function newGame(mode) {
   if (state.busy) return;
   state.busy = true; syncBusy();
   try {
-    state.game = await api('/api/game', { mode }); state.mode = mode;
+    state.game = await api('/api/game', mode === 'pve' ? { mode, level: state.level } : { mode }); state.mode = mode;
     if (!$('gameDialog').open) {
       await resizeDesktop(790, 790);
       $('gameDialog').showModal();
@@ -121,6 +128,11 @@ $('retryAiBtn').onclick = async () => {
   if (state.busy) return; state.busy = true; render();
   try { await aiTurn(); } catch (error) { await recover(error); }
   finally { state.busy = false; render(); }
+};
+$('levelSelect').onchange = event => {
+  state.level = LEVELS[event.target.value] ? event.target.value : 'hard';
+  try { localStorage.setItem('caroLevel', state.level); } catch { /* The choice still applies to this session. */ }
+  render(); toast(`Độ khó: ${LEVELS[state.level][0]} — áp dụng từ nước tiếp theo của AI.`);
 };
 $('pvpBtn').onclick = () => newGame('pvp'); $('pveBtn').onclick = () => newGame('pve');
 $('restartBtn').onclick = () => newGame(state.mode);

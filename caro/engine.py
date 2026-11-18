@@ -48,6 +48,7 @@ class Game:
     base_url: str = ''
     model: str = ''
     ai_note: str = ''
+    level: str = 'hard'
 
     def __post_init__(self):
         self.starter = self.turn
@@ -81,7 +82,7 @@ class Game:
 
     def public(self):
         return {key: getattr(self, key) for key in (
-            'mode', 'board', 'turn', 'starter', 'winner', 'moves', 'last_move', 'win_cells', 'ai_note'
+            'mode', 'board', 'turn', 'starter', 'winner', 'moves', 'last_move', 'win_cells', 'ai_note', 'level'
         )} | {'llm_enabled': self.llm_enabled, 'provider': self.provider}
 
 
