@@ -355,7 +355,7 @@ def front():
       f'{num(d4_red,1)}% fewer nodes than pure Minimax at depth 4 while always choosing the same move, and heuristic ordering '
       f'saved a further {num(ord_red,0)}%. In {total_games} automated games, the depth-4 AI won all 24 games against random and '
       'greedy opponents and 10 of 12 games against a depth-2 AI, using at most 0.84 seconds per move. On 3×3 Tic-Tac-Toe, '
-      'full Minimax visits 549,946 nodes and confirms a draw under optimal play. All 33 unit tests pass.')
+      'full Minimax visits 549,946 nodes and confirms a draw under optimal play. All 38 unit tests pass.')
 
     FM('TABLE OF CONTENTS', toc=False)
     p = doc.add_paragraph()
@@ -451,7 +451,8 @@ def ch1():
     P('Table 2 shows that the modeling framework is the same (state = board, action = place a piece), but at 15×15 the '
       'state space is hundreds of orders of magnitude larger. That gap forces the group to apply the full set of techniques '
       'from the “Adversarial Search” chapter instead of only plain Minimax. To stay close to the original task, the group '
-      'also implemented full Minimax for 3×3 Tic-Tac-Toe as a baseline experiment (Section 5.6).')
+      'also implemented full Minimax for 3×3 Tic-Tac-Toe as a baseline experiment (Section 5.6) and made the 3×3 board playable '
+      'in PVE mode (Section 4.4).')
 
     H(2, '1.2. Objectives')
     BUL(['Model the game with PEAS and as an adversarial search problem: states, initial state, actions, transition '
@@ -472,11 +473,11 @@ def ch1():
          'last move and the highlighted winning line.'])
     H(2, '1.4. Success criteria and limitations')
     TABLE(['Criterion', 'Target', 'Result (Chapter 5)'],
-          [['Correct rules', 'All rule tests pass (exact five, line of six, draw, repeated move)', '33/33 tests pass'],
+          [['Correct rules', 'All rule tests pass (exact five, line of six, draw, repeated move)', '38/38 tests pass'],
            ['Response time', 'Search ≤ 1.5 s per move', 'avg 0.25–0.33 s, max 0.84 s'],
            ['Pruning efficiency', 'Alpha-Beta clearly cuts nodes without changing the move', f'−{num(d4_red,1)}% at d = 4, same move in 12/12 position–depth pairs'],
            ['Playing strength', 'Beat random and greedy opponents', '24/24 games won'],
-           ['Interaction', 'The player can play the AI through the interface', 'PVE/PVP, mouse + keyboard, 3 difficulty levels']],
+           ['Interaction', 'The player can play the AI through the interface', 'PVE/PVP, mouse + keyboard, 3 difficulty levels, 15×15 or 3×3 board in PVE']],
           widths=[3.5, 6.2, 6], title='Success criteria')
     P('Limitations: the AI is a depth-limited search (at most 4 plies) with a limited number of branches, so it is **not '
       'guaranteed to be unbeatable**. The LLM component was only tested with mocked responses, not with a real API key. The '
@@ -688,12 +689,13 @@ def ch4():
       'on a random 127.0.0.1 port.')
     FIG('fig_arch.png', 'Module architecture of Caro XP', 16)
     TABLE(['Module', 'Lines', 'Main responsibility'],
-          [['caro/engine.py', '243', 'Game class (state, Game.play), exact-five check, evaluate, _ordered, _minimax, ranked_ai_moves.'],
+          [['caro/engine.py', '258', 'Game class (state, Game.play, 15×15 or 3×3 board), exact-five check, evaluate, _ordered, _minimax, ranked_ai_moves.'],
+           ['caro/tictactoe.py', '60', 'Minimax for the 3×3 board: Dễ 1 ply, Vừa 2 plies, Khó the whole game tree; ties broken at random.'],
            ['caro/llm.py', '60', 'Adapter for the Anthropic Messages API and OpenAI-compatible APIs; validates returned coordinates.'],
-           ['app.py', '235', 'HTTP server (standard library), game API, per-game lock, turn and revision checks, AI/LLM coordination.'],
-           ['desktop.py', '—', 'Opens the pywebview window, manages the server lifecycle, sizes the window to the screen.'],
-           ['web/ (HTML, CSS, JS)', '148 (JS)', 'Windows XP-style interface, 15×15 board, keyboard support, status messages, difficulty picker.'],
-           ['tests/test_game.py', '349', '33 tests for rules, AI, the LLM adapter and the real HTTP API, including difficulty levels.'],
+           ['app.py', '251', 'HTTP server (standard library), game API, per-game lock, turn and revision checks, AI/LLM coordination.'],
+           ['desktop.py', '—', 'Opens the pywebview window (700×632) and manages the server lifecycle.'],
+           ['web/ (HTML, CSS, JS)', '302 (JS)', 'Windows XP-style interface, PVE setup steps, 15×15 or 3×3 board, countdown, keyboard support, difficulty picker.'],
+           ['tests/test_game.py', '421', '38 tests for rules, AI, the 3×3 board, the LLM adapter and the real HTTP API, including difficulty levels.'],
            ['experiments/benchmark.py', '—', 'Experiment script for Chapter 5 (nodes, time, automated matches).']],
           widths=[4.2, 1.8, 9.7], size=11, title='Main modules', align_center_cols=(1,))
     H(2, '4.2. Flow of one PVE turn')
@@ -729,6 +731,7 @@ def ch4():
            ['Branch limits', '16 / 10 / 8', '_ordered, _minimax', 'Moves kept at the root / inner nodes / last ply.'],
            ['Defence factor', '1.1', '_ordered', 'Priority of blocking versus attacking when ordering.'],
            ['Game mode', 'PVP / PVE', 'Interface', 'Human vs human or human vs computer.'],
+           ['Board size', '15×15', 'Interface (PVE setup, toolbar)', 'PVE only: 15×15 (exactly five) or 3×3 (three in a row, Minimax in caro/tictactoe.py, no LLM). Changing it starts a new game after confirmation.'],
            ['Difficulty level', 'Khó (hard)', 'Interface (game toolbar)', 'Sets max_depth and time_limit: Dễ 2 / 0.5 s, Vừa 3 / 1 s, Khó 4 / 1.5 s; can change during a game.'],
            ['LLM', 'Off', '.env file', 'Enable Claude/OpenAI-compatible to choose among tied moves.']],
           widths=[3.2, 2.4, 3.6, 6.5], size=11, title='Key system parameters')
@@ -737,6 +740,13 @@ def ch4():
       'starts a new game and, in PVE, picks a difficulty level in the game toolbar: Dễ (easy, depth 2, 0.5 s), Vừa (medium, '
       'depth 3, 1 s) or Khó (hard, depth 4, 1.5 s – the default used in Chapter 5). The level can be changed during a game and '
       'applies from the AI\'s next move; the toolbar shows the depth and time of the current level.')
+    P('PVE now starts with two setup steps – board size (15×15 or 3×3), then difficulty – and a confirmation dialog that '
+      'summarises the opponent, board, win rule and level. A 3-2-1 countdown follows and only then reveals who moves first. On '
+      'the 3×3 board the levels are plain search depths in caro/tictactoe.py: Dễ looks 1 ply ahead (it only sees its own '
+      'immediate win), Vừa 2 plies (it also blocks an immediate loss but can be beaten with a fork) and Khó searches the whole '
+      'game tree with the same utility as Section 5.6 (+10 − ply, −10 + ply, 0), so it never loses; the LLM is not used there. '
+      'Starting a new game or changing the board mid-game asks for confirmation, and the interface waits about 1.1–1.6 s '
+      'before showing each AI move so the player can follow it; this delay is not part of the search time measured in Chapter 5.')
     H(2, '4.5. Reliability and safety')
     BUL(['Each game has its own lock; requests with a stale revision are rejected (409), so a quick double click never places two pieces.',
          'The server only listens on 127.0.0.1, rejects foreign Origins and any Content-Type other than application/json, and limits request bodies to 16 KB.',
@@ -858,8 +868,9 @@ def ch5():
           [['Game rules', '8', 'Exactly five in 4 directions, even blocked at both ends; a line of six does not win; five in one direction + six in another still wins; full-board draw; win on the last cell; illegal/repeated moves; random first player; hidden config.', 'Pass'],
            ['AI', '7', 'Win before block; block a four in 4 directions; block a broken four; never mistake six for a win; find a double four; no board change on timeout; empty/full board.', 'Pass'],
            ['LLM and fallback', '9', 'LLM error → Minimax; only tied moves are sent; malformed/missing/refused replies; no key sent to unknown hosts; auth errors.', 'Pass'],
-           ['HTTP API', '9', 'Full game lifecycle over real HTTP; stale revision (409); AI does not move in PVP; difficulty levels set depth/time and reject unknown values; foreign Origin rejected; .env config.', 'Pass']],
-          widths=[3.2, 1.4, 9.2, 1.9], size=10.5, title='Summary of the 33 unit tests (python3 -m unittest)', align_center_cols=(1, 3))
+           ['HTTP API', '9', 'Full game lifecycle over real HTTP; stale revision (409); AI does not move in PVP; difficulty levels set depth/time and reject unknown values; foreign Origin rejected; .env config.', 'Pass'],
+           ['3×3 board', '5', 'Three in a row in every direction; full-board draw and bounds; Khó never loses against any sequence of replies; level behaviour (win, block, beaten by a fork); server allows 3×3 only in PVE and never calls the LLM.', 'Pass']],
+          widths=[3.2, 1.4, 9.2, 1.9], size=10.5, title='Summary of the 38 unit tests (python3 -m unittest)', align_center_cols=(1, 3))
     H(2, '5.8. Limitations')
     BUL(['**Horizon effect:** threats that appear after the 4th ply are not seen; Experiment 3 shows the score changing sign with depth.',
          '**Branch limits are an approximation:** only 10 (or 8) moves are kept per node; a good move with a low static score can be dropped.',
@@ -885,12 +896,16 @@ def ch6():
     FIG('ui_ai_win.jpg', 'End of the game: the player blocks one end and the AI completes exactly five at the other', 13)
     P('When the player blocks the top end (4, 8), the AI plays (9, 8) to make exactly five. The winning line is highlighted in '
       'green, the status panel shows that the computer has won, and the board is locked until “New game” is chosen. This '
-      'example shows visually why the weight of an open four must be very large: one block is not enough to save the game.')
+      'example shows visually why the weight of an open four must be very large: one block is not enough to save the game. '
+      'Figure 11 shows the 3×3 board added to PVE: at Khó the AI searches the whole game tree, and in this game it wins with '
+      'three O in the bottom row.')
+    FIG('ui_3x3_end.jpg', 'The 3×3 board in PVE at Khó: the full-tree Minimax (O) wins with three in the bottom row', 13)
     H(2, '6.1. Live demo script')
     BUL(['Launch the app with python desktop.py (or Caro XP.command on macOS); introduce the mode selection screen.',
-         'Choose PVE, point out that the first player is drawn at random and show the difficulty picker (Dễ / Vừa / Khó); play a few moves and let the AI reply in under a second.',
+         'Choose PVE, pick the 15×15 board and a level (Dễ / Vừa / Khó), confirm, and watch the countdown reveal who moves first; play a few moves against the AI.',
          'Deliberately build a three/four to show the AI blocking immediately; then let the AI build an open four and finish the game.',
          'Switch to PVP to show the exact-five check (a line of six does not win).',
+         'Go back to PVE, choose the 3×3 board at Khó and show that the full-tree Minimax never loses (the original Tic-Tac-Toe task).',
          'Fallback: the screenshots in this chapter and the browser version python3 app.py.'], numbered=True)
 
 
@@ -906,7 +921,7 @@ def conclusion():
          '**The AI is fast and plays well:** 0.25–0.33 s per move on average (max 0.84 s, under the 1.5 s limit); it wins 24/24 games '
          'against random and greedy opponents, and depth 4 beats depth 2 by 10/12.',
          '**A complete, rule-correct product:** a desktop interface where the player competes with the AI at three difficulty levels, a PVP mode, the exact-five '
-         'rule and a safe optional LLM connection; 33/33 tests pass. In the original 3×3 Tic-Tac-Toe case, Minimax searches the '
+         'rule, a playable 3×3 board and a safe optional LLM connection; 38/38 tests pass. In the original 3×3 Tic-Tac-Toe case, Minimax searches the '
          'whole tree, confirms the draw and the AI loses none of 200 games.'])
     H(2, '7.2. Limitations')
     P('The AI is not guaranteed to be unbeatable because of its depth and branch limits, and it suffers from the horizon effect; '
@@ -943,7 +958,7 @@ def appendix():
           '.venv/bin/python -m pip install -r requirements.txt',
           '.venv/bin/python desktop.py          # desktop window',
           'python3 app.py                       # or the browser version: http://127.0.0.1:8000',
-          'python3 -m unittest discover -s tests -v       # 33 tests',
+          'python3 -m unittest discover -s tests -v       # 38 tests',
           'python3 experiments/benchmark.py --games 12    # reproduce Chapter 5'])
     P('On Windows use .venv\\Scripts\\python; WebView2 Runtime is required. To enable the LLM, put ANTHROPIC_API_KEY in the .env '
       'file (optional).')
