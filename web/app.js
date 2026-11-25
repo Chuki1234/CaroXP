@@ -302,16 +302,23 @@ async function fitRules() {
   const desktop = window.pywebview?.api;
   if (!desktop?.grow) return;
   try {
-    if (!$('rulesDetails').open) { await desktop.shrink(); return; }
     if (window.innerHeight >= screen.height - 1) return;
-    // Body padding (20px) plus a small margin below the XP window.
-    const extra = Math.ceil($('mainWindow').getBoundingClientRect().height + 32 - window.innerHeight);
+    // How many px the menu is too tall for the window (body padding 20px plus a
+    // small margin); negative when there is room to spare.
+    const open = $('rulesDetails').open;
+    const extra = Math.ceil($('mainWindow').getBoundingClientRect().height + (open ? 32 : 20) - window.innerHeight);
+    if (!open) { await desktop.shrink(extra); return; }
     if (extra > 0) await desktop.grow(extra);
   } catch { /* The menu still scrolls if the window cannot grow. */ }
 }
-$('rulesDetails').addEventListener('toggle', () => requestAnimationFrame(fitRules));
+// Calls run one after another, each reading the current state, so quick
+// open/close clicks never apply out of order. (Not requestAnimationFrame: the
+// desktop WebView pauses it while the window is in the background.)
+let fitting = Promise.resolve();
+const queueFit = () => { fitting = fitting.then(fitRules); };
+$('rulesDetails').addEventListener('toggle', queueFit);
 // Rules opened before the desktop bridge was ready: fit them once it is.
-window.addEventListener('pywebviewready', () => { if ($('rulesDetails').open) fitRules(); });
+window.addEventListener('pywebviewready', () => { if ($('rulesDetails').open) queueFit(); });
 $('minimizeBtn').onclick = () => window.pywebview?.api?.minimize?.();
 buildBoard(15);
 api('/api/config').then(config => {
