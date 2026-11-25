@@ -697,7 +697,7 @@ def ch4():
            ['caro/llm.py', '60', 'Adapter for the Anthropic Messages API and OpenAI-compatible APIs; validates returned coordinates.'],
            ['app.py', '251', 'HTTP server (standard library), game API, per-game lock, turn and revision checks, AI/LLM coordination.'],
            ['desktop.py', '—', 'Opens the pywebview window (700×632) and manages the server lifecycle.'],
-           ['web/ (HTML, CSS, JS)', '302 (JS)', 'Windows XP-style interface, PVE setup steps, 15×15 or 3×3 board, countdown, keyboard support, difficulty picker.'],
+           ['web/ (HTML, CSS, JS)', '326 (JS)', 'Windows XP-style interface, PVE setup steps, 15×15 or 3×3 board, countdown, keyboard support, difficulty picker.'],
            ['tests/test_game.py', '421', '38 tests for rules, AI, the 3×3 board, the LLM adapter and the real HTTP API, including difficulty levels.'],
            ['experiments/benchmark.py', '—', 'Experiment script for Chapter 5 (nodes, time, automated matches).']],
           widths=[4.2, 1.8, 9.7], size=11, title='Main modules', align_center_cols=(1,))
