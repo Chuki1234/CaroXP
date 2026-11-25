@@ -348,10 +348,11 @@ def front():
     P('This project addresses Topic 5, “Tic-Tac-Toe Game with Minimax”: a person plays against the computer, the state is '
       'the board, the transition function places X or O, and Minimax chooses the move. Because the 3×3 game tree can be '
       'searched completely in a fraction of a second, the group kept the same model and extended it to 15×15 Caro with the '
-      'exact-five rule, where Minimax has to be combined with Alpha-Beta pruning, a four-ply depth limit, heuristic move '
-      'ordering, iterative deepening with a 1.5-second limit and an evaluation function based on 5-cell windows. The product, '
+      'exact-five rule, where Minimax needs a four-ply depth limit and an evaluation function based on 5-cell windows; '
+      'Alpha-Beta pruning, heuristic move ordering and iterative deepening with a 1.5-second limit are added only as '
+      'optimisations that keep Minimax’s result. The product, '
       'Caro XP, consists of a Python engine and HTTP backend with a Windows XP-style desktop interface that offers '
-      'player-versus-player and player-versus-computer modes. On three test positions, Alpha-Beta searched '
+      'player-versus-player and player-versus-computer modes. As an optimisation on three test positions, Alpha-Beta searched '
       f'{num(d4_red,1)}% fewer nodes than pure Minimax at depth 4 while always choosing the same move, and heuristic ordering '
       f'saved a further {num(ord_red,0)}%. In {total_games} automated games, the depth-4 AI won all 24 games against random and '
       'greedy opponents and 10 of 12 games against a depth-2 AI, using at most 0.84 seconds per move. On 3×3 Tic-Tac-Toe, '
@@ -452,12 +453,13 @@ def ch1():
       'state space is hundreds of orders of magnitude larger. That gap forces the group to apply the full set of techniques '
       'from the “Adversarial Search” chapter instead of only plain Minimax. To stay close to the original task, the group '
       'also implemented full Minimax for 3×3 Tic-Tac-Toe as a baseline experiment (Section 5.6) and made the 3×3 board playable '
-      'in PVE mode (Section 4.4).')
+      'in PVE mode (Section 4.4). The 3×3 part uses pure Minimax only; Alpha-Beta pruning belongs to the 15×15 extension and '
+      'never changes the move that Minimax chooses.')
 
     H(2, '1.2. Objectives')
     BUL(['Model the game with PEAS and as an adversarial search problem: states, initial state, actions, transition '
          'function, terminal test and utility/evaluation function.',
-         'Implement Minimax with Alpha-Beta pruning so the computer picks a good move within about 1.5 seconds per turn.',
+         'Implement Minimax – full Minimax on 3×3 and depth-limited Minimax on 15×15 (with Alpha-Beta pruning only as an optimisation) – so the computer picks a good move within about 1.5 seconds per turn.',
          'Build a graphical interface where a person plays against the computer (PVE) or another person on the same machine (PVP).',
          'Measure and compare: nodes searched, move time by depth, the effect of move ordering, and win/draw/loss rates against '
          'opponents of different strength.'])
@@ -576,8 +578,9 @@ def ch3():
       'evaluate(B) instead of being expanded, an idea that goes back to Shannon\'s chess program [4], [1]. With branching factor b, the number of nodes is O(b^d). In Caro, even with b '
       'limited to 10, depth-4 Minimax already needs about 0.9–1.5×10⁴ nodes (Table 14), and each extra ply multiplies the node '
       'count by about 10.')
-    H(2, '3.2. Alpha-Beta pruning')
-    P('Alpha-Beta keeps two bounds: α is the best value MAX is guaranteed on the current path, β is the best value MIN is '
+    H(2, '3.2. Speeding up Minimax: Alpha-Beta pruning')
+    P('Alpha-Beta is not a separate algorithm and is not required by the topic; it is an optimisation of Minimax that the '
+      'group uses only on the 15×15 board. It keeps two bounds: α is the best value MAX is guaranteed on the current path, β is the best value MIN is '
       'guaranteed. When α ≥ β at a node, the remaining children cannot affect the decision at the root, so they are skipped. '
       'The result at the root is **identical to Minimax**, only with fewer nodes. With perfect move ordering, the complexity '
       'drops from O(b^d) to O(b^(d/2)) [2] – which is why the group invested in move ordering (Section 3.4).')
@@ -774,7 +777,7 @@ def ch5():
       'midgame** (12 interleaved pieces) and **P3 – tactical** (12 pieces, X has three in a row in row 8 and O must respond). '
       'In all three it is O\'s (the AI\'s) turn.')
 
-    H(2, '5.2. Experiment 1 – Pure Minimax versus Alpha-Beta')
+    H(2, '5.2. Experiment 1 – Effect of pruning on Minimax (15×15 extension)')
     rows = []
     for r in e1:
         if r['depth'] >= 2:
@@ -916,7 +919,7 @@ def conclusion():
     P('The group modeled the game exactly as the topic requires – the state is the board, the transition function places X or '
       'O, and Minimax chooses the move – and extended it from 3×3 Tic-Tac-Toe to 15×15 Caro so that adversarial search '
       'techniques become genuinely necessary. Three main results:')
-    BUL([f'**Alpha-Beta cuts {num(d4_red,1)}% of nodes at depth 4** compared with pure Minimax on three positions, about '
+    BUL([f'**Pure Minimax solves 3×3 Tic-Tac-Toe (a draw, no losses in 200 games); as an optimisation for 15×15, Alpha-Beta cuts {num(d4_red,1)}% of nodes at depth 4** compared with pure Minimax on three positions, about '
          f'{num(d4_speed,1)}× faster and always choosing the same move; heuristic move ordering saves a further {num(ord_red,0)}% of nodes.',
          '**The AI is fast and plays well:** 0.25–0.33 s per move on average (max 0.84 s, under the 1.5 s limit); it wins 24/24 games '
          'against random and greedy opponents, and depth 4 beats depth 2 by 10/12.',
